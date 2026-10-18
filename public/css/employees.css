@@ -1,0 +1,342 @@
+/* ==========================================
+   Employees Page
+   ========================================== */
+
+.emp-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.estat {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.estat .ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  background: var(--surface-3);
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.estat .ico.purple {
+  background: var(--purple-soft);
+  color: var(--purple-2)
+}
+
+.estat .ico.green {
+  background: var(--green-soft);
+  color: var(--green)
+}
+
+.estat .ico.amber {
+  background: var(--amber-soft);
+  color: var(--amber)
+}
+
+.estat .ico.red {
+  background: var(--red-soft);
+  color: var(--red)
+}
+
+.estat .label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px
+}
+
+.estat .value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.8px;
+  margin-top: 4px
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.toolbar .search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  max-width: 400px
+}
+
+.toolbar .search-wrap input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 44px 12px 16px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14.5px;
+}
+
+.toolbar .search-wrap input:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px var(--purple-soft);
+}
+
+.toolbar .search-wrap .icon {
+  position: absolute;
+  inset-inline-start: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.toolbar select {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 40px 12px 16px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14.5px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2371717a' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 14px center;
+}
+
+.toolbar .spacer {
+  flex: 1
+}
+
+.emp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--purple-soft);
+  color: var(--purple-2);
+  border: 1px solid rgba(99, 91, 255, .25);
+}
+
+.emp-badge.admin {
+  background: linear-gradient(135deg, rgba(99, 91, 255, .2), rgba(139, 92, 246, .2));
+  border-color: rgba(99, 91, 255, .4)
+}
+
+.emp-badge.active {
+  background: var(--green-soft);
+  color: var(--green);
+  border-color: rgba(74, 222, 128, .3)
+}
+
+.emp-badge.disabled {
+  background: var(--red-soft);
+  color: var(--red);
+  border-color: rgba(248, 113, 113, .3)
+}
+
+/* Permissions checkboxes */
+.perms-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.perm-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+  transition: all .15s;
+}
+
+.perm-check:hover {
+  background: var(--surface-3);
+  border-color: var(--line-strong)
+}
+
+.perm-check input[type="checkbox"] {
+  accent-color: var(--purple);
+  cursor: pointer
+}
+
+.perm-check.checked {
+  background: var(--purple-soft);
+  border-color: rgba(99, 91, 255, .3);
+  color: var(--purple-2);
+  font-weight: 600
+}
+
+/* Drawer */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .7);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity .25s, visibility .25s;
+  z-index: 80;
+}
+
+.drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: min(580px, 100vw);
+  background: var(--surface);
+  border-inline-end: 1px solid var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition: transform .3s cubic-bezier(.4, 0, .2, 1), visibility .3s;
+  z-index: 90;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.drawer.open {
+  transform: translateX(0);
+  visibility: visible
+}
+
+.drawer header {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text)
+}
+
+.drawer header .close {
+  background: transparent;
+  border: 1px solid var(--line);
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  color: var(--text-2);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.drawer form {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.drawer .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px
+}
+
+.drawer .form-grid .wide {
+  grid-column: 1/-1
+}
+
+.drawer label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-2)
+}
+
+.drawer label input,
+.drawer label select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14.5px;
+}
+
+.drawer label input:focus,
+.drawer label select:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px var(--purple-soft);
+}
+
+.drawer .drawer-actions {
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-2);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+@media (max-width:1024px) {
+  .emp-stats {
+    grid-template-columns: repeat(2, 1fr)
+  }
+}
+
+@media (max-width:600px) {
+  .emp-stats {
+    grid-template-columns: 1fr
+  }
+
+  .drawer {
+    width: 100vw
+  }
+
+  .perms-grid {
+    grid-template-columns: 1fr
+  }
+}

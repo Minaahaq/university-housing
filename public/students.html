@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#635bff" />
+  <title>الطلاب — سكن الجامعة</title>
+
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/students.css" />
+</head>
+
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">🏠</div>
+        <div class="brand-text">
+          <h1>سكن الجامعة</h1>
+          <p>نظام الإدارة</p>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">القائمة الرئيسية</div>
+        <a href="/dashboard.html" class="nav-link"><span class="ico">📊</span><span>نظرة عامة</span></a>
+        <a href="/students.html" class="nav-link active"><span class="ico">👥</span><span>الطلاب</span><span
+            class="badge" id="navStudentsBadge">0</span></a>
+        <a href="/rooms.html" class="nav-link"><span class="ico">🏠</span><span>الغرف</span><span class="badge"
+            id="navRoomsBadge">0</span></a>
+        <a href="/workers.html" class="nav-link"><span class="ico">🧹</span><span>العمال</span><span class="badge"
+            id="navWorkersBadge">0</span></a>
+        <a href="/permits.html" class="nav-link"><span class="ico">📋</span><span>التصاريح</span><span class="badge"
+            id="navPermitsBadge">0</span></a>
+        <a href="/payments.html" class="nav-link"><span class="ico">💵</span><span>المدفوعات</span><span class="badge"
+            id="navPaymentsBadge">0</span></a>
+        <a href="/reports.html" class="nav-link"><span class="ico">📈</span><span>التقارير</span></a>
+        <a href="/employees.html" class="nav-link"><span class="ico">👤</span><span>الموظفون</span></a>
+        <a href="/audit.html" class="nav-link"><span class="ico">📋</span><span>سجل النشاط</span></a>
+        <a href="/settings.html" class="nav-link"><span class="ico">⚙️</span><span>الإعدادات</span></a>
+      </div>
+      <div class="user-card">
+        <div class="avatar" id="userAvatar">؟</div>
+        <div class="who"><strong id="userName">...</strong><small id="userRole">...</small></div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="القائمة">☰</button>
+        <h2 class="page-title">الطلاب</h2>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="exportBtn" title="تصدير CSV">📥</button>
+        <button class="icon-btn" id="themeBtn" title="الوضع">🌙</button>
+        <button class="icon-btn" id="logoutBtn" title="خروج">⎋</button>
+      </header>
+
+      <main class="content" id="app" hidden>
+
+        <!-- Page Head -->
+        <div class="page-head">
+          <div class="titles">
+            <h1>الطلاب</h1>
+            <p>إدارة بيانات جميع الطلاب المسجلين</p>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="addStudentBtn" type="button">
+              <span>➕</span>
+              <span>إضافة طالب</span>
+            </button>
+          </div>
+        </div>
+
+<!-- Stats Cards (نظام الكروت الحديث) -->
+<div class="stats-cards">
+  <div class="stat-card-modern">
+    <div class="sc-icon sc-blue">👥</div>
+    <div class="sc-info">
+      <div class="sc-label">إجمالي</div>
+      <div class="sc-value" id="statsTotal">0</div>
+    </div>
+    <div class="sc-glow"></div>
+  </div>
+
+  <div class="stat-card-modern">
+    <div class="sc-icon sc-green">🏠</div>
+    <div class="sc-info">
+      <div class="sc-label">مقيم</div>
+      <div class="sc-value" id="statsResidents">0</div>
+    </div>
+    <div class="sc-glow"></div>
+  </div>
+
+  <div class="stat-card-modern">
+    <div class="sc-icon sc-amber">✈️</div>
+    <div class="sc-info">
+      <div class="sc-label">مسافر</div>
+      <div class="sc-value" id="statsTravelers">0</div>
+    </div>
+    <div class="sc-glow"></div>
+  </div>
+
+  <div class="stat-card-modern">
+    <div class="sc-icon sc-purple">🏖️</div>
+    <div class="sc-info">
+      <div class="sc-label">إجازة</div>
+      <div class="sc-value" id="statsVacation">0</div>
+    </div>
+    <div class="sc-glow"></div>
+  </div>
+
+  <div class="stat-card-modern sc-featured">
+    <div class="sc-icon sc-white">🚪</div>
+    <div class="sc-info">
+      <div class="sc-label">منسحب</div>
+      <div class="sc-value" id="statsWithdrawn">0</div>
+    </div>
+    <div class="sc-glow"></div>
+  </div>
+</div>
+
+        <!-- Table Card -->
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-wrap">
+              <span class="icon" aria-hidden="true">🔍</span>
+              <input id="studentSearch" type="search" placeholder="ابحث بالاسم، الهاتف، الغرفة، أو الرقم القومي..."
+                aria-label="بحث الطلاب" />
+            </div>
+            <select id="filterCollege" aria-label="تصفية بالكلية">
+              <option value="">كل الكليات</option>
+            </select>
+            <select id="filterYear" aria-label="تصفية بالفرقة">
+              <option value="">كل الفرق</option>
+              <option>الأولى</option>
+              <option>الثانية</option>
+              <option>الثالثة</option>
+              <option>الرابعة</option>
+              <option>الخامسة</option>
+              <option>السادسة</option>
+              <option>أخرى</option>
+            </select>
+            <select id="filterStatus" aria-label="تصفية بالحالة">
+              <option value="">كل الحالات</option>
+              <option>مقيم</option>
+              <option>مسافر</option>
+              <option>إجازة</option>
+              <option>منسحب</option>
+            </select>
+            <button class="btn sm" id="clearFiltersBtn" type="button" title="مسح الفلاتر">✕ مسح</button>
+          </div>
+
+          <div class="tablewrap">
+            <table id="studentsTable">
+              <thead>
+                <tr>
+                  <th data-sort="name">الاسم<span class="sort-ind">↕</span></th>
+                  <th>الهاتف</th>
+                  <th data-sort="college">الكلية<span class="sort-ind">↕</span></th>
+                  <th data-sort="year">الفرقة<span class="sort-ind">↕</span></th>
+                  <th>الغرفة</th>
+                  <th data-sort="status">الحالة<span class="sort-ind">↕</span></th>
+                  <th>الرسوم</th>
+                  <th class="no-print">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="studentRows"></tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="studentsPagination"></div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ DRAWER — Add/Edit Student ============ -->
+  <div class="drawer-backdrop" id="studentDrawerBackdrop"></div>
+  <div class="drawer" id="studentDrawer" role="dialog" aria-modal="true" aria-labelledby="studentDrawerTitle">
+    <header>
+      <h3 id="studentDrawerTitle">إضافة طالب</h3>
+      <button class="close" id="closeStudentDrawer" type="button" aria-label="إغلاق">✕</button>
+    </header>
+
+    <form id="studentForm" autocomplete="off">
+      <input type="hidden" id="studentId" />
+
+      <div class="form-section">
+        <h4 class="form-section-title">البيانات الأساسية</h4>
+        <div class="form-grid">
+          <label class="wide">اسم الطالب <span class="req">*</span>
+            <input id="sName" required placeholder="مثال: أحمد محمد علي" />
+          </label>
+          <label>الرقم القومي
+            <input id="sNational" placeholder="14 رقمًا" inputmode="numeric" maxlength="14" />
+          </label>
+          <label>رقم الموبايل
+            <input id="sPhone" placeholder="01xxxxxxxxx" inputmode="tel" maxlength="15" />
+          </label>
+          <label class="wide">البريد الإلكتروني
+            <input id="sEmail" type="email" placeholder="student@university.edu" />
+          </label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4 class="form-section-title">البيانات الأكاديمية</h4>
+        <div class="form-grid">
+          <label>الكلية
+            <select id="sCollege">
+              <option>طب بيطري</option>
+              <option>زراعة</option>
+              <option>صيدلة PharmD</option>
+              <option>صيدلة إكلينيكية</option>
+              <option>كلية علوم</option>
+              <option>كلية اللغات والعلوم الإنسانية</option>
+              <option>كلية أخرى</option>
+            </select>
+          </label>
+          <label>الفرقة
+            <select id="sYear">
+              <option>الأولى</option>
+              <option>الثانية</option>
+              <option>الثالثة</option>
+              <option>الرابعة</option>
+              <option>الخامسة</option>
+              <option>السادسة</option>
+              <option>أخرى</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4 class="form-section-title">بيانات السكن</h4>
+        <div class="form-grid">
+          <label>الجناح
+            <select id="sWing">
+              <option>أ</option>
+              <option>ب</option>
+              <option>ج</option>
+            </select>
+          </label>
+          <label>الدور
+            <select id="sFloor">
+              <option>الأول</option>
+              <option>الثاني</option>
+              <option>الثالث</option>
+              <option>الرابع</option>
+            </select>
+          </label>
+          <label>رقم الغرفة
+            <input id="sRoom" placeholder="101" />
+          </label>
+          <label>نوع الغرفة
+            <select id="sRoomType">
+              <option>فردية</option>
+              <option>ثنائية</option>
+              <option>ثلاثية</option>
+              <option>رباعية</option>
+              <option>أخرى</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4 class="form-section-title">الحالة والرسوم</h4>
+        <div class="form-grid">
+          <label>الحالة
+            <select id="sStatus">
+              <option>مقيم</option>
+              <option>مسافر</option>
+              <option>إجازة</option>
+              <option>منسحب</option>
+            </select>
+          </label>
+          <label>الرسوم الشهرية (جنيه)
+            <input id="sMonthly" type="number" min="0" step="0.01" value="0" />
+          </label>
+          <label class="wide">ملاحظات
+            <textarea id="sNotes" placeholder="إنذارات، ملاحظات..."></textarea>
+          </label>
+        </div>
+      </div>
+    </form>
+
+    <div class="drawer-actions">
+      <button type="button" class="btn" id="cancelStudentDrawer">إلغاء</button>
+      <button type="button" class="btn primary" id="saveStudentBtn">
+        <span>💾</span>
+        <span>حفظ</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ LOADER ============ -->
+  <div class="loader" id="loader">
+    <div class="logo-ring">
+      <div class="ring outer"></div>
+      <div class="ring"></div>
+      <div class="icon">🏠</div>
+    </div>
+    <h2>سكن الجامعة</h2>
+    <div class="status" id="loaderStatus">جارٍ الاتصال...</div>
+    <div class="progress">
+      <div class="bar" id="loaderBar"></div>
+    </div>
+    <div class="error-box" id="loaderErrorBox">
+      <strong>تعذّر التحميل</strong>
+      <div id="loaderErrorMsg"></div>
+    </div>
+  </div>
+
+  <!-- ============ OVERLAY ============ -->
+  <div class="overlay" id="actionOverlay">
+    <div class="card">
+      <div class="spinner"></div>
+      <div class="msg" id="actionMsg">جارٍ التنفيذ...</div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL ============ -->
+  <div class="modal-bd" id="modalBd">
+    <div class="modal">
+      <h3 id="modalTitle">تأكيد</h3>
+      <p id="modalMessage">هل تريد المتابعة؟</p>
+      <div class="actions">
+        <button class="btn" id="modalCancel">إلغاء</button>
+        <button class="btn danger" id="modalOk">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TOASTS ============ -->
+  <div class="toasts" id="toasts"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core.js"></script>
+  <script src="/js/students.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+
+</html>

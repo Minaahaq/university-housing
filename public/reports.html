@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#635bff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>التقارير — سكن الجامعة</title>
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/reports.css" />
+</head>
+
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">🏠</div>
+        <div class="brand-text">
+          <h1>سكن الجامعة</h1>
+          <p>نظام الإدارة</p>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">القائمة الرئيسية</div>
+        <a href="/dashboard.html" class="nav-link"><span class="ico">📊</span><span>نظرة عامة</span></a>
+        <a href="/students.html" class="nav-link"><span class="ico">👥</span><span>الطلاب</span><span class="badge"
+            id="navStudentsBadge">0</span></a>
+        <a href="/rooms.html" class="nav-link"><span class="ico">🏠</span><span>الغرف</span><span class="badge"
+            id="navRoomsBadge">0</span></a>
+        <a href="/workers.html" class="nav-link"><span class="ico">🧹</span><span>العمال</span><span class="badge"
+            id="navWorkersBadge">0</span></a>
+        <a href="/permits.html" class="nav-link"><span class="ico">📋</span><span>التصاريح</span><span class="badge"
+            id="navPermitsBadge">0</span></a>
+        <a href="/payments.html" class="nav-link"><span class="ico">💵</span><span>المدفوعات</span><span class="badge"
+            id="navPaymentsBadge">0</span></a>
+        <a href="/reports.html" class="nav-link active"><span class="ico">📈</span><span>التقارير</span></a>
+        <a href="/employees.html" class="nav-link"><span class="ico">👤</span><span>الموظفون</span></a>
+        <a href="/audit.html" class="nav-link"><span class="ico">📋</span><span>سجل النشاط</span></a>
+        <a href="/settings.html" class="nav-link"><span class="ico">⚙️</span><span>الإعدادات</span></a>
+      </div>
+      <div class="user-card">
+        <div class="avatar" id="userAvatar">؟</div>
+        <div class="who"><strong id="userName">...</strong><small id="userRole">...</small></div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <h2 class="page-title">التقارير</h2>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="printBtn" title="طباعة">🖨️</button>
+        <button class="icon-btn" id="themeBtn">🌙</button>
+        <button class="icon-btn" id="logoutBtn">⎋</button>
+      </header>
+
+      <main class="content" id="app" hidden>
+
+        <div class="page-head">
+          <div class="titles">
+            <h1>التقارير</h1>
+            <p>إحصاءات ورسوم بيانية شاملة</p>
+          </div>
+          <div class="actions">
+            <button class="btn" id="exportBtn" type="button">📥 تصدير CSV</button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="reports-tabs no-print">
+          <button class="active" data-tab="financial">💰 مالي</button>
+          <button data-tab="occupancy">🏠 إشغال</button>
+          <button data-tab="students">👥 طلاب</button>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="reports-filters no-print">
+          <span class="label">الفترة:</span>
+          <select id="filterPeriod">
+            <option value="month">هذا الشهر</option>
+            <option value="3months">آخر 3 شهور</option>
+            <option value="year">هذه السنة</option>
+            <option value="all" selected>كل الوقت</option>
+          </select>
+          <div class="spacer"></div>
+          <button class="btn" id="refreshBtn">🔄 تحديث</button>
+        </div>
+
+        <!-- ============ Financial Report ============ -->
+        <div class="report-panel active" id="financial">
+
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="ico green">💳</div>
+              <div>
+                <div class="label">إجمالي المحصّل</div>
+                <div class="value" id="kpiPaid">0 <small>ج</small></div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="ico purple">📄</div>
+              <div>
+                <div class="label">إجمالي المطلوب</div>
+                <div class="value" id="kpiDue">0 <small>ج</small></div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="ico red">⚠️</div>
+              <div>
+                <div class="label">المتأخرات</div>
+                <div class="value" id="kpiOverdue">0 <small>ج</small></div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="ico amber">📊</div>
+              <div>
+                <div class="label">نسبة التحصيل</div>
+                <div class="value" id="kpiRate">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-grid">
+            <div class="chart-card">
+              <div class="head">
+                <div>
+                  <h3>الإيرادات الشهرية</h3>
+                  <p>المدفوع vs المطلوب — آخر 12 شهرًا</p>
+                </div>
+              </div>
+              <div class="body"><canvas id="chartRevenue"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="head">
+                <div>
+                  <h3>حالة المدفوعات</h3>
+                  <p>مدفوع / جزئي / غير مدفوع</p>
+                </div>
+              </div>
+              <div class="body"><canvas id="chartPaymentStatus"></canvas></div>
+            </div>
+          </div>
+
+          <div class="report-table">
+            <div class="head">
+              <h3>ملخص شهري</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الشهر</th>
+                    <th>المطلوب</th>
+                    <th>المحصّل</th>
+                    <th>المتأخر</th>
+                    <th>نسبة التحصيل</th>
+                  </tr>
+                </thead>
+                <tbody id="financialRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ Occupancy Report ============ -->
+        <div class="report-panel" id="occupancy">
+
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="ico purple">🏢</div>
+              <div>
+                <div class="label">المباني</div>
+                <div class="value" id="kpiBuildings">0</div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="ico green">🛏️</div>
+              <div>
+                <div class="label">أسرّة متاحة</div>
+                <div class="value" id="kpiAvailable">0</div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="ico red">👥</div>
+              <div>
+                <div class="label">مقيمون حاليًا</div>
+                <div class="value" id="kpiOccupied">0</div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="ico amber">📊</div>
+              <div>
+                <div class="label">نسبة الإشغال</div>
+                <div class="value" id="kpiOccupancy">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-grid">
+            <div class="chart-card">
+              <div class="head">
+                <div>
+                  <h3>الإشغال حسب المبنى</h3>
+                  <p>عدد الغرف المشغولة/المتاحة</p>
+                </div>
+              </div>
+              <div class="body"><canvas id="chartBuildingOccupancy"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="head">
+                <div>
+                  <h3>حالة الغرف</h3>
+                  <p>متاحة / مشغولة / صيانة</p>
+                </div>
+              </div>
+              <div class="body"><canvas id="chartRoomStatus"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ Students Report ============ -->
+        <div class="report-panel" id="students">
+
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="ico purple">👥</div>
+              <div>
+                <div class="label">إجمالي الطلاب</div>
+                <div class="value" id="kpiTotalStudents">0</div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="ico green">🏠</div>
+              <div>
+                <div class="label">المقيمون</div>
+                <div class="value" id="kpiResidents">0</div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="ico amber">✈️</div>
+              <div>
+                <div class="label">المسافرون/الإجازات</div>
+                <div class="value" id="kpiTravelers">0</div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="ico red">🚪</div>
+              <div>
+                <div class="label">المنسحبون</div>
+                <div class="value" id="kpiWithdrawn">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-grid">
+            <div class="chart-card">
+              <div class="head">
+                <div>
+                  <h3>توزيع الطلاب حسب الحالة</h3>
+                  <p>مقيم / مسافر / إجازة / منسحب</p>
+                </div>
+              </div>
+              <div class="body"><canvas id="chartStudentStatus"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="head">
+                <div>
+                  <h3>توزيع الطلاب حسب الكلية</h3>
+                  <p>أعلى 6 كليات</p>
+                </div>
+              </div>
+              <div class="body"><canvas id="chartStudentCollege"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Loader / Overlay / Modal / Toasts -->
+  <div class="loader" id="loader">
+    <div class="logo-ring">
+      <div class="ring outer"></div>
+      <div class="ring"></div>
+      <div class="icon">🏠</div>
+    </div>
+    <h2>سكن الجامعة</h2>
+    <div class="status" id="loaderStatus">جارٍ الاتصال...</div>
+    <div class="progress">
+      <div class="bar" id="loaderBar"></div>
+    </div>
+    <div class="error-box" id="loaderErrorBox"><strong>تعذّر التحميل</strong>
+      <div id="loaderErrorMsg"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="actionOverlay">
+    <div class="card">
+      <div class="spinner"></div>
+      <div class="msg" id="actionMsg">جارٍ التنفيذ...</div>
+    </div>
+  </div>
+
+  <div class="modal-bd" id="modalBd">
+    <div class="modal">
+      <h3 id="modalTitle">تأكيد</h3>
+      <p id="modalMessage">هل تريد المتابعة؟</p>
+      <div class="actions">
+        <button class="btn" id="modalCancel">إلغاء</button>
+        <button class="btn danger" id="modalOk">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/vendor/chart.umd.min.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core.js"></script>
+  <script src="/js/reports.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+
+</html>

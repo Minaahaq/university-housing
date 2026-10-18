@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سكن الجامعة</title>
+<style>
+:root{--navy:#17324d;--blue:#1769aa;--bg:#f3f6fa;--line:#dce4ed;--red:#b42318;--green:#137547}
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:var(--bg);color:#182433}
+header{background:linear-gradient(120deg,#17324d,#1769aa);color:white;padding:20px 16px}
+header h1{margin:0 0 7px;font-size:25px}header p{margin:0;color:#e4edf7;font-size:13px}
+.wrap{max-width:1200px;margin:auto;padding:16px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+button,.btn{border:0;border-radius:9px;padding:10px 13px;cursor:pointer;font-family:inherit;font-weight:bold;background:var(--blue);color:white}
+button.secondary{background:#e7edf4;color:#17324d}button.danger{background:var(--red)}button.green{background:var(--green)}
+.tab.active{background:#17324d;color:#fff}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 3px 12px #18324d0a}
+h2{font-size:19px;margin:0 0 14px}.stats{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:white;border:1px solid var(--line);border-radius:12px;padding:14px}.stat small{color:#667085}.stat strong{display:block;font-size:24px;margin-top:7px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}label{display:block;font-size:13px;font-weight:bold;color:#344054}
+input,select,textarea{display:block;width:100%;margin-top:6px;border:1px solid #cbd5e1;border-radius:8px;padding:10px;font:inherit;background:white;color:#172033}
+textarea{min-height:70px;resize:vertical}.wide{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:right;font-size:13px}th{background:#f0f5fa;color:#344054;white-space:nowrap}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.toolbar input{max-width:360px;margin:0}
+.muted{color:#667085;font-size:12px;line-height:1.7}.hidden{display:none!important}.pill{background:#eaf4ff;color:#14528a;border-radius:20px;padding:4px 8px;white-space:nowrap}
+.notice{background:#fff8e6;border:1px solid #f1d48a;padding:11px;border-radius:9px;font-size:13px;line-height:1.7;margin-bottom:14px}
+@media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.wrap{padding:10px}.panel{padding:12px}header h1{font-size:22px}}
+@media(max-width:440px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.stats{gap:7px}.stat{padding:10px}.stat strong{font-size:21px}}
+@media print{header,.tabs,.no-print,.notice{display:none!important}body{background:white}.wrap{max-width:none;padding:0}.panel,.stat{box-shadow:none;border:0;padding:5px}.stats{display:none}table{min-width:0}th,td{font-size:10px;padding:5px}}
+</style>
+</head>
+<body>
+<header><h1>🏠 سكن الجامعة</h1><p>إدارة بيانات الطلاب والعمال والمدفوعات والتصاريح</p></header>
+<div class="wrap">
+<div class="notice"><b>تنبيه مهم:</b> هذه نسخة HTML مستقلة تحفظ البيانات على نفس المتصفح والجهاز فقط. لا تزامن تلقائيًا بين الأجهزة ولا تُعد بديلًا عن نسخة PHP/MySQL الآمنة للمشاركة عبر الإنترنت. لا تستخدم بيانات حقيقية حساسة قبل إعداد نظام آمن.</div>
+<div class="stats">
+ <div class="stat"><small>عدد الطلاب</small><strong id="studentCount">0</strong></div>
+ <div class="stat"><small>عدد العمال</small><strong id="workerCount">0</strong></div>
+ <div class="stat"><small>إجمالي المطلوب</small><strong id="dueTotal">0</strong></div>
+ <div class="stat"><small>إجمالي المدفوع</small><strong id="paidTotal">0</strong></div>
+</div>
+<div class="tabs no-print">
+<button class="tab active" data-tab="students">الطلاب</button>
+<button class="tab" data-tab="workers">العمال</button>
+<button class="tab" data-tab="permits">التصاريح</button>
+<button class="tab" data-tab="payments">المدفوعات</button>
+<button class="tab" data-tab="backup">النسخ الاحتياطي والطباعة</button>
+</div>
+
+<section id="students" class="tabpage">
+<div class="panel">
+<h2 id="studentFormTitle">إضافة طالب</h2>
+<form id="studentForm"><input type="hidden" id="studentId">
+<div class="grid">
+<label>اسم الطالب *<input id="sName" required></label>
+<label>الرقم القومي<input id="sNational"></label>
+<label>رقم الموبايل<input id="sPhone" inputmode="tel"></label>
+<label>البريد الإلكتروني<input id="sEmail" type="email"></label>
+<label>الكلية<select id="sCollege"><option>طب بيطري</option><option>زراعة</option><option>صيدلة PharmD</option><option>صيدلة إكلينيكية</option><option>كلية علوم</option><option>كلية اللغات والعلوم الإنسانية</option><option>كلية أخرى</option></select></label>
+<label>الفرقة / المستوى<select id="sYear"><option>الأولى</option><option>الثانية</option><option>الثالثة</option><option>الرابعة</option><option>الخامسة</option><option>السادسة</option><option>أخرى</option></select></label>
+<label>الجناح<select id="sWing"><option>أ</option><option>ب</option><option>ج</option></select></label>
+<label>الدور<select id="sFloor"><option>الأول</option><option>الثاني</option><option>الثالث</option><option>الرابع</option></select></label>
+<label>رقم الغرفة<input id="sRoom"></label>
+<label>نوع الغرفة<select id="sRoomType"><option>فردية</option><option>ثنائية</option><option>ثلاثية</option><option>رباعية</option><option>أخرى</option></select></label>
+<label>الحالة<select id="sStatus"><option>مقيم</option><option>مسافر</option><option>إجازة</option><option>منسحب</option></select></label>
+<label>الرسوم الشهرية المطلوبة (جنيه)<input id="sMonthly" type="number" min="0" step="0.01" value="0"></label>
+<label class="wide">الإنذارات والملاحظات<textarea id="sNotes"></textarea></label>
+</div><div class="actions"><button type="submit">حفظ الطالب</button><button type="button" class="secondary" onclick="resetStudent()">تفريغ الحقول</button></div>
+</form></div>
+<div class="panel"><h2>سجل الطلاب</h2><div class="toolbar no-print"><input id="studentSearch" placeholder="ابحث بالاسم أو الهاتف أو الغرفة أو الكلية"><button onclick="renderStudents()">بحث</button></div>
+<div class="tablewrap"><table><thead><tr><th>الاسم</th><th>الهاتف</th><th>الكلية</th><th>الجناح/الدور</th><th>الغرفة</th><th>الحالة</th><th class="no-print">إجراءات</th></tr></thead><tbody id="studentRows"></tbody></table></div></div>
+</section>
+
+<section id="workers" class="tabpage hidden">
+<div class="panel"><h2 id="workerFormTitle">إضافة عامل</h2><form id="workerForm"><input type="hidden" id="workerId">
+<div class="grid"><label>اسم العامل *<input id="wName" required></label><label>المهمة / الوظيفة<input id="wJob" placeholder="مثال: نظافة الدور الثاني"></label><label>رقم الهاتف<input id="wPhone"></label><label>الحضور من<input id="wFrom" type="date"></label><label>الحضور إلى<input id="wTo" type="date"></label><label>المبلغ المستحق (جنيه)<input id="wDue" type="number" min="0" step="0.01" value="0"></label><label>المبلغ المدفوع (جنيه)<input id="wPaid" type="number" min="0" step="0.01" value="0"></label><label class="wide">ملاحظات<textarea id="wNotes"></textarea></label></div>
+<div class="actions"><button>حفظ العامل</button><button type="button" class="secondary" onclick="resetWorker()">تفريغ الحقول</button></div></form></div>
+<div class="panel"><h2>سجل العمال</h2><div class="tablewrap"><table><thead><tr><th>الاسم</th><th>المهمة</th><th>الفترة</th><th>المستحق</th><th>المدفوع</th><th class="no-print">إجراءات</th></tr></thead><tbody id="workerRows"></tbody></table></div></div>
+</section>
+
+<section id="permits" class="tabpage hidden">
+<div class="panel"><h2>إضافة تصريح</h2><form id="permitForm"><div class="grid">
+<label>الطالب<select id="pStudent" required></select></label>
+<label>نوع التصريح<select id="pType"><option>تصريح مبيت</option><option>تصريح سفر</option><option>تصريح العيادة</option></select></label>
+<label>التاريخ<input id="pDate" type="date" required></label><label>الوقت<input id="pTime" type="time"></label>
+<label>نوع العيادة (إن وجد)<input id="pClinic" placeholder="مثال: باطنة"></label><label>موعد العودة<input id="pReturn" type="datetime-local"></label>
+<label class="wide">التفاصيل / سبب التصريح<textarea id="pDetails"></textarea></label>
+</div><div class="actions"><button>حفظ التصريح</button></div></form></div>
+<div class="panel"><h2>التصاريح المسجلة</h2><div class="tablewrap"><table><thead><tr><th>الطالب</th><th>النوع</th><th>التاريخ</th><th>الوقت</th><th>التفاصيل</th><th class="no-print">إجراء</th></tr></thead><tbody id="permitRows"></tbody></table></div></div>
+</section>
+
+<section id="payments" class="tabpage hidden">
+<div class="panel"><h2>تسجيل دفعة شهرية</h2><form id="paymentForm"><div class="grid">
+<label>الطالب<select id="payStudent" required></select></label><label>الشهر<select id="payMonth"></select></label>
+<label>المبلغ المطلوب (جنيه)<input id="payDue" type="number" min="0" step="0.01" required></label><label>المبلغ المدفوع (جنيه)<input id="payPaid" type="number" min="0" step="0.01" value="0" required></label>
+<label>تاريخ الدفع<input id="payDate" type="date"></label><label class="wide">ملاحظات<input id="payNotes"></label>
+</div><div class="actions"><button>حفظ الدفعة</button></div></form><p class="muted">يمكن تسجيل دفعة لكل طالب ولكل شهر. تأكد من اختيار المبلغ المطلوب الصحيح قبل الحفظ.</p></div>
+<div class="panel"><h2>سجل المدفوعات</h2><div class="tablewrap"><table><thead><tr><th>الطالب</th><th>الشهر</th><th>المطلوب</th><th>المدفوع</th><th>المتبقي</th><th>تاريخ الدفع</th><th class="no-print">إجراء</th></tr></thead><tbody id="paymentRows"></tbody></table></div></div>
+</section>
+
+<section id="backup" class="tabpage hidden"><div class="panel"><h2>النسخ الاحتياطي والطباعة</h2><p>نزّل نسخة JSON للاحتفاظ بكل السجلات، أو صدّر الطلاب CSV، أو اطبع الجداول واحفظها PDF من نافذة الطباعة.</p>
+<div class="actions"><button onclick="backup()">تنزيل نسخة احتياطية JSON</button><button class="secondary" onclick="document.getElementById('restoreFile').click()">استعادة نسخة JSON</button><input class="hidden" id="restoreFile" type="file" accept=".json,application/json"><button class="green" onclick="exportCSV()">تصدير الطلاب CSV</button><button class="secondary" onclick="window.print()">طباعة / حفظ PDF</button><button class="danger" onclick="deleteAll()">حذف كل البيانات</button></div>
+<p class="muted">الاستعادة تستبدل البيانات الموجودة حاليًا. احتفظ بنسخة احتياطية قبل الاستعادة أو حذف البيانات.</p></div></section>
+<p class="muted">نسخة HTML تجريبية مستقلة — البيانات محفوظة في تخزين المتصفح المحلي.</p>
+</div>
+<script>
+const KEY='universityHousingSingleHtmlV1';
+let db={students:[],workers:[],permits:[],payments:[]};
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved)db={...db,...saved}}catch(e){}
+const $=id=>document.getElementById(id), val=id=>$(id).value.trim(), num=id=>Number($(id).value||0);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>(Number(n)||0).toLocaleString('ar-EG',{maximumFractionDigits:2});
+function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function studentName(id){return db.students.find(s=>s.id===id)?.name||'طالب محذوف'}
+function fillSelects(){for(const id of ['pStudent','payStudent']){const old=$(id).value;$(id).innerHTML=db.students.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');if(old)$(id).value=old}}
+function renderStats(){$('studentCount').textContent=db.students.length;$('workerCount').textContent=db.workers.length;$('dueTotal').textContent=money(db.payments.reduce((a,p)=>a+Number(p.due||0),0));$('paidTotal').textContent=money(db.payments.reduce((a,p)=>a+Number(p.paid||0),0))}
+function renderStudents(){const q=val('studentSearch').toLowerCase();$('studentRows').innerHTML=db.students.filter(s=>[s.name,s.phone,s.room,s.college,s.national].join(' ').toLowerCase().includes(q)).map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.phone)}</td><td>${esc(s.college)}</td><td>${esc(s.wing)} / ${esc(s.floor)}</td><td>${esc(s.room)}</td><td><span class="pill">${esc(s.status)}</span></td><td class="no-print"><button class="secondary" onclick="editStudent('${s.id}')">تعديل</button> <button class="danger" onclick="delItem('students','${s.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="7">لا توجد سجلات طلاب بعد.</td></tr>'}
+function renderWorkers(){$('workerRows').innerHTML=db.workers.map(w=>`<tr><td>${esc(w.name)}</td><td>${esc(w.job)}</td><td>${esc(w.from)} — ${esc(w.to)}</td><td>${money(w.due)}</td><td>${money(w.paid)}</td><td class="no-print"><button class="secondary" onclick="editWorker('${w.id}')">تعديل</button> <button class="danger" onclick="delItem('workers','${w.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6">لا يوجد عمال مسجلون.</td></tr>'}
+function renderPermits(){$('permitRows').innerHTML=db.permits.map(p=>`<tr><td>${esc(studentName(p.studentId))}</td><td>${esc(p.type)}</td><td>${esc(p.date)}</td><td>${esc(p.time)}</td><td>${esc([p.clinic,p.details,p.returnAt?'العودة: '+p.returnAt:''].filter(Boolean).join(' — '))}</td><td class="no-print"><button class="danger" onclick="delItem('permits','${p.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6">لا توجد تصاريح مسجلة.</td></tr>'}
+function renderPayments(){$('paymentRows').innerHTML=db.payments.map(p=>`<tr><td>${esc(studentName(p.studentId))}</td><td>${esc(p.month)}</td><td>${money(p.due)}</td><td>${money(p.paid)}</td><td>${money(Math.max(0,p.due-p.paid))}</td><td>${esc(p.date)}</td><td class="no-print"><button class="danger" onclick="delItem('payments','${p.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="7">لا توجد مدفوعات مسجلة.</td></tr>'}
+function renderAll(){fillSelects();renderStats();renderStudents();renderWorkers();renderPermits();renderPayments()}
+function resetStudent(){$('studentForm').reset();$('studentId').value='';$('sMonthly').value=0;$('studentFormTitle').textContent='إضافة طالب'}
+function editStudent(id){const s=db.students.find(x=>x.id===id);if(!s)return;const map={studentId:'id',sName:'name',sNational:'national',sPhone:'phone',sEmail:'email',sCollege:'college',sYear:'year',sWing:'wing',sFloor:'floor',sRoom:'room',sRoomType:'roomType',sStatus:'status',sMonthly:'monthly',sNotes:'notes'};Object.entries(map).forEach(([a,b])=>$(a).value=s[b]??'');$('studentFormTitle').textContent='تعديل بيانات طالب';window.scrollTo({top:0,behavior:'smooth'})}
+$('studentForm').addEventListener('submit',e=>{e.preventDefault();const id=val('studentId')||uid();const s={id,name:val('sName'),national:val('sNational'),phone:val('sPhone'),email:val('sEmail'),college:val('sCollege'),year:val('sYear'),wing:val('sWing'),floor:val('sFloor'),room:val('sRoom'),roomType:val('sRoomType'),status:val('sStatus'),monthly:num('sMonthly'),notes:val('sNotes')};const i=db.students.findIndex(x=>x.id===id);if(i<0)db.students.push(s);else db.students[i]=s;save();resetStudent()});
+function resetWorker(){$('workerForm').reset();$('workerId').value='';$('wDue').value=0;$('wPaid').value=0;$('workerFormTitle').textContent='إضافة عامل'}
+function editWorker(id){const w=db.workers.find(x=>x.id===id);if(!w)return;const map={workerId:'id',wName:'name',wJob:'job',wPhone:'phone',wFrom:'from',wTo:'to',wDue:'due',wPaid:'paid',wNotes:'notes'};Object.entries(map).forEach(([a,b])=>$(a).value=w[b]??'');$('workerFormTitle').textContent='تعديل بيانات عامل';window.scrollTo({top:0,behavior:'smooth'})}
+$('workerForm').addEventListener('submit',e=>{e.preventDefault();const id=val('workerId')||uid(),w={id,name:val('wName'),job:val('wJob'),phone:val('wPhone'),from:val('wFrom'),to:val('wTo'),due:num('wDue'),paid:num('wPaid'),notes:val('wNotes')};const i=db.workers.findIndex(x=>x.id===id);if(i<0)db.workers.push(w);else db.workers[i]=w;save();resetWorker()});
+$('permitForm').addEventListener('submit',e=>{e.preventDefault();db.permits.push({id:uid(),studentId:val('pStudent'),type:val('pType'),date:val('pDate'),time:val('pTime'),clinic:val('pClinic'),returnAt:val('pReturn'),details:val('pDetails')});save();$('permitForm').reset()});
+const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];$('payMonth').innerHTML=months.map(m=>`<option>${m}</option>`).join('');
+$('payStudent').addEventListener('change',()=>{const s=db.students.find(x=>x.id===val('payStudent'));if(s)$('payDue').value=s.monthly||0});
+$('paymentForm').addEventListener('submit',e=>{e.preventDefault();db.payments.push({id:uid(),studentId:val('payStudent'),month:val('payMonth'),due:num('payDue'),paid:num('payPaid'),date:val('payDate'),notes:val('payNotes')});save();$('paymentForm').reset();$('payPaid').value=0});
+function delItem(type,id){if(!confirm('هل أنت متأكد من حذف هذا السجل؟'))return;db[type]=db[type].filter(x=>x.id!==id);save()}
+function download(name,content,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function backup(){download('نسخة-سكن-الجامعة.json',JSON.stringify(db,null,2),'application/json;charset=utf-8')}
+$('restoreFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!x||!Array.isArray(x.students)||!Array.isArray(x.workers)||!Array.isArray(x.payments)||!Array.isArray(x.permits))throw Error();if(confirm('سيتم استبدال كل البيانات الحالية. هل تريد المتابعة؟')){db=x;save();alert('تمت الاستعادة.')}}catch(err){alert('الملف غير صالح أو ليس نسخة احتياطية متوافقة.')}e.target.value=''});
+function exportCSV(){const rows=[['الاسم','الرقم القومي','الهاتف','البريد','الكلية','الفرقة','الجناح','الدور','الغرفة','نوع الغرفة','الحالة','الرسوم الشهرية','ملاحظات'],...db.students.map(s=>[s.name,s.national,s.phone,s.email,s.college,s.year,s.wing,s.floor,s.room,s.roomType,s.status,s.monthly,s.notes])];const csv='\ufeff'+rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download('بيانات-الطلاب.csv',csv,'text/csv;charset=utf-8')}
+function deleteAll(){if(prompt('اكتب حذف للتأكيد على مسح جميع البيانات')==='حذف'){db={students:[],workers:[],permits:[],payments:[]};save();resetStudent();resetWorker();alert('تم حذف البيانات المحلية.')}}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.tabpage').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab))}));
+$('studentSearch').addEventListener('input',renderStudents);
+renderAll();
+</script>
+</body></html>

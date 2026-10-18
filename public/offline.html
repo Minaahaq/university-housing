@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#635bff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>غير متصل — سكن الجامعة</title>
+  <link rel="stylesheet" href="/css/app.css" />
+  <style>
+    .offline-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #1a1a2e 100%);
+      padding: 24px;
+      text-align: center;
+    }
+    .offline-card {
+      max-width: 420px;
+      width: 100%;
+    }
+    .offline-icon {
+      font-size: 72px;
+      margin-bottom: 20px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: .9; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+    .offline-card h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 12px;
+      letter-spacing: -.5px;
+    }
+    .offline-card p {
+      color: #a1a1aa;
+      font-size: 15px;
+      line-height: 1.7;
+      margin: 0 0 24px;
+    }
+    .offline-card .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: #635bff;
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .offline-card .btn:hover {
+      background: #7c73ff;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(99, 91, 255, .4);
+    }
+    .offline-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+      padding: 8px 16px;
+      background: rgba(248, 113, 113, .1);
+      border: 1px solid rgba(248, 113, 113, .3);
+      border-radius: 999px;
+      font-size: 13px;
+      color: #f87171;
+      font-weight: 600;
+    }
+    .offline-status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f87171;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-wrap">
+    <div class="offline-card">
+      <div class="offline-icon">📡</div>
+      <h1>لا يوجد اتصال بالإنترنت</h1>
+      <p>تحقّق من اتصالك بالشبكة وحاول مرة أخرى. الصفحات التي زرتها سابقًا قد تكون متاحة.</p>
+      <a href="/dashboard.html" class="btn">🔄 إعادة المحاولة</a>
+      <div class="offline-status">
+        <span class="dot"></span>
+        غير متصل
+      </div>
+    </div>
+  </div>
+  <script>
+    // راقب عودة الاتصال — أعد التحميل تلقائيًا
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

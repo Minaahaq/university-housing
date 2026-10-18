@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#635bff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>سجل النشاط — سكن الجامعة</title>
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/audit.css" />
+</head>
+
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">🏠</div>
+        <div class="brand-text">
+          <h1>سكن الجامعة</h1>
+          <p>نظام الإدارة</p>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">القائمة الرئيسية</div>
+        <a href="/dashboard.html" class="nav-link"><span class="ico">📊</span><span>نظرة عامة</span></a>
+        <a href="/students.html" class="nav-link"><span class="ico">👥</span><span>الطلاب</span><span class="badge"
+            id="navStudentsBadge">0</span></a>
+        <a href="/rooms.html" class="nav-link"><span class="ico">🏠</span><span>الغرف</span><span class="badge"
+            id="navRoomsBadge">0</span></a>
+        <a href="/workers.html" class="nav-link"><span class="ico">🧹</span><span>العمال</span><span class="badge"
+            id="navWorkersBadge">0</span></a>
+        <a href="/permits.html" class="nav-link"><span class="ico">📋</span><span>التصاريح</span><span class="badge"
+            id="navPermitsBadge">0</span></a>
+        <a href="/payments.html" class="nav-link"><span class="ico">💵</span><span>المدفوعات</span><span class="badge"
+            id="navPaymentsBadge">0</span></a>
+        <a href="/audit.html" class="nav-link active"><span class="ico">📋</span><span>سجل النشاط</span></a>
+        <a href="/settings.html" class="nav-link"><span class="ico">⚙️</span><span>الإعدادات</span></a>
+      </div>
+      <div class="user-card">
+        <div class="avatar" id="userAvatar">؟</div>
+        <div class="who"><strong id="userName">...</strong><small id="userRole">...</small></div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <h2 class="page-title">سجل النشاط</h2>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="themeBtn">🌙</button>
+        <button class="icon-btn" id="logoutBtn">⎋</button>
+      </header>
+
+      <main class="content" id="app" hidden>
+
+        <div class="page-head">
+          <div class="titles">
+            <h1>سجل النشاط</h1>
+            <p>كل عمليات النظام الحساسة — للقراءة فقط</p>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="audit-stats">
+          <div class="astat">
+            <div class="ico purple">📋</div>
+            <div>
+              <div class="label">إجمالي السجلات</div>
+              <div class="value" id="statTotal">0</div>
+            </div>
+          </div>
+          <div class="astat">
+            <div class="ico green">📅</div>
+            <div>
+              <div class="label">سجلات اليوم</div>
+              <div class="value" id="statToday">0</div>
+            </div>
+          </div>
+          <div class="astat">
+            <div class="ico amber">👤</div>
+            <div>
+              <div class="label">عدد المستخدمين</div>
+              <div class="value" id="statUsers">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="audit-filters">
+          <div class="search-wrap">
+            <input id="auditSearch" type="search" placeholder="ابحث بالعملية، العنصر، التفاصيل..." />
+            <span class="ico">🔍</span>
+          </div>
+          <select id="filterAction">
+            <option value="">كل العمليات</option>
+          </select>
+          <select id="filterTargetType">
+            <option value="">كل العناصر</option>
+          </select>
+          <input type="date" id="filterFrom" title="من تاريخ" />
+          <input type="date" id="filterTo" title="إلى تاريخ" />
+        </div>
+
+        <!-- Timeline -->
+        <div class="audit-timeline" id="auditTimeline"></div>
+
+        <!-- Pagination -->
+        <div class="audit-pagination" id="auditPagination"></div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Loader / Overlay / Modal / Toasts -->
+  <div class="loader" id="loader">
+    <div class="logo-ring">
+      <div class="ring outer"></div>
+      <div class="ring"></div>
+      <div class="icon">🏠</div>
+    </div>
+    <h2>سكن الجامعة</h2>
+    <div class="status" id="loaderStatus">جارٍ الاتصال...</div>
+    <div class="progress">
+      <div class="bar" id="loaderBar"></div>
+    </div>
+    <div class="error-box" id="loaderErrorBox">
+      <strong>تعذّر التحميل</strong>
+      <div id="loaderErrorMsg"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="actionOverlay">
+    <div class="card">
+      <div class="spinner"></div>
+      <div class="msg" id="actionMsg">جارٍ التنفيذ...</div>
+    </div>
+  </div>
+
+  <div class="modal-bd" id="modalBd">
+    <div class="modal">
+      <h3 id="modalTitle">تأكيد</h3>
+      <p id="modalMessage">هل تريد المتابعة؟</p>
+      <div class="actions">
+        <button class="btn" id="modalCancel">إلغاء</button>
+        <button class="btn danger" id="modalOk">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core.js"></script>
+  <script src="/js/audit.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+
+</html>

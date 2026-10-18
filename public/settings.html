@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#635bff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>الإعدادات — سكن الجامعة</title>
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/settings.css" />
+</head>
+
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">🏠</div>
+        <div class="brand-text">
+          <h1>سكن الجامعة</h1>
+          <p>نظام الإدارة</p>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">القائمة الرئيسية</div>
+        <a href="/dashboard.html" class="nav-link"><span class="ico">📊</span><span>نظرة عامة</span></a>
+        <a href="/students.html" class="nav-link"><span class="ico">👥</span><span>الطلاب</span><span class="badge"
+            id="navStudentsBadge">0</span></a>
+        <a href="/rooms.html" class="nav-link"><span class="ico">🏠</span><span>الغرف</span><span class="badge"
+            id="navRoomsBadge">0</span></a>
+        <a href="/workers.html" class="nav-link"><span class="ico">🧹</span><span>العمال</span><span class="badge"
+            id="navWorkersBadge">0</span></a>
+        <a href="/permits.html" class="nav-link"><span class="ico">📋</span><span>التصاريح</span><span class="badge"
+            id="navPermitsBadge">0</span></a>
+        <a href="/payments.html" class="nav-link"><span class="ico">💵</span><span>المدفوعات</span><span class="badge"
+            id="navPaymentsBadge">0</span></a>
+        <a href="/reports.html" class="nav-link active"><span class="ico">📈</span><span>التقارير</span></a>
+        <a href="/employees.html" class="nav-link"><span class="ico">👤</span><span>الموظفون</span></a>
+        <a href="/audit.html" class="nav-link"><span class="ico">📋</span><span>سجل النشاط</span></a>
+        <a href="/settings.html" class="nav-link"><span class="ico">⚙️</span><span>الإعدادات</span></a>
+      </div>
+      <div class="user-card">
+        <div class="avatar" id="userAvatar">؟</div>
+        <div class="who"><strong id="userName">...</strong><small id="userRole">...</small></div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <h2 class="page-title">الإعدادات</h2>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="themeBtn" title="الوضع">🌙</button>
+        <button class="icon-btn" id="logoutBtn" title="خروج">⎋</button>
+      </header>
+
+      <main class="content" id="app" hidden>
+        <div class="page-head">
+          <div class="titles">
+            <h1>الإعدادات</h1>
+            <p>إدارة حسابك الشخصي وكلمة المرور</p>
+          </div>
+        </div>
+
+        <div class="settings-layout">
+
+          <!-- Side nav -->
+          <nav class="settings-nav">
+            <button class="active" data-tab="profile" type="button">
+              <span class="ico">👤</span><span class="label">الملف الشخصي</span>
+            </button>
+            <button data-tab="security" type="button">
+              <span class="ico">🔒</span><span class="label">كلمة المرور</span>
+            </button>
+            <button data-tab="account" type="button">
+              <span class="ico">ℹ️</span><span class="label">معلومات الحساب</span>
+            </button>
+            <button data-tab="danger" type="button">
+              <span class="ico">⚠️</span><span class="label">منطقة الخطر</span>
+            </button>
+          </nav>
+
+          <!-- Content -->
+          <div class="settings-content">
+
+            <!-- Profile -->
+            <div class="settings-panel active" id="profile">
+              <div class="panel-card">
+                <div class="panel-card-header">
+                  <h3>الملف الشخصي</h3>
+                  <p>تحديث اسمك ورقم هاتفك</p>
+                </div>
+                <div class="panel-card-body">
+                  <div class="settings-form">
+                    <div class="form-group">
+                      <label>الاسم الكامل</label>
+                      <div class="input-wrap">
+                        <input id="profileFullName" placeholder="الاسم الكامل" />
+                        <span class="ico">👤</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>رقم الهاتف</label>
+                      <div class="input-wrap">
+                        <input id="profilePhone" placeholder="01xxxxxxxxx" inputmode="tel" />
+                        <span class="ico">📱</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>البريد الإلكتروني</label>
+                      <div class="input-wrap">
+                        <input id="profileEmail" disabled />
+                        <span class="ico">✉</span>
+                      </div>
+                      <div class="hint">لا يمكن تغيير البريد من هنا — تواصل مع مدير النظام</div>
+                    </div>
+                    <div class="form-actions">
+                      <button class="btn primary" id="saveProfileBtn" type="button">💾 حفظ التغييرات</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Security -->
+            <div class="settings-panel" id="security">
+              <div class="panel-card">
+                <div class="panel-card-header">
+                  <h3>تغيير كلمة المرور</h3>
+                  <p>استخدم كلمة مرور قوية لا تقل عن 8 أحرف</p>
+                </div>
+                <div class="panel-card-body">
+                  <div class="settings-form">
+                    <div class="form-group">
+                      <label>كلمة المرور الحالية</label>
+                      <div class="input-wrap">
+                        <input id="currentPassword" type="password" autocomplete="current-password"
+                          placeholder="••••••••" />
+                        <span class="ico">🔒</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>كلمة المرور الجديدة</label>
+                      <div class="input-wrap">
+                        <input id="newPassword" type="password" autocomplete="new-password" placeholder="••••••••" />
+                        <span class="ico">🔑</span>
+                      </div>
+                      <div class="hint">8 أحرف على الأقل، يُفضل استخدام حروف وأرقام ورموز</div>
+                    </div>
+                    <div class="form-group">
+                      <label>تأكيد كلمة المرور الجديدة</label>
+                      <div class="input-wrap">
+                        <input id="confirmPassword" type="password" autocomplete="new-password"
+                          placeholder="••••••••" />
+                        <span class="ico">🔑</span>
+                      </div>
+                    </div>
+                    <div class="form-actions">
+                      <button class="btn primary" id="changePasswordBtn" type="button">🔒 تغيير كلمة المرور</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Account info -->
+            <div class="settings-panel" id="account">
+              <div class="panel-card">
+                <div class="panel-card-header">
+                  <h3>معلومات الحساب</h3>
+                  <p>تفاصيل حسابك في النظام</p>
+                </div>
+                <div class="panel-card-body">
+                  <div class="info-grid">
+                    <div class="info-item">
+                      <div class="label">الاسم</div>
+                      <div class="value" id="infoFullName">—</div>
+                    </div>
+                    <div class="info-item">
+                      <div class="label">البريد الإلكتروني</div>
+                      <div class="value" id="infoEmail">—</div>
+                    </div>
+                    <div class="info-item">
+                      <div class="label">الدور</div>
+                      <div class="value" id="infoRole">—</div>
+                    </div>
+                    <div class="info-item">
+                      <div class="label">تاريخ الإنشاء</div>
+                      <div class="value" id="infoCreatedAt">—</div>
+                    </div>
+                    <div class="info-item" style="grid-column:1/-1">
+                      <div class="label">معرّف المستخدم (UID)</div>
+                      <div class="value mono" id="infoUid">—</div>
+                    </div>
+                    <div class="info-item" style="grid-column:1/-1">
+                      <div class="label">الصلاحيات</div>
+                      <div class="perms-wrap" id="infoPermissions"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Danger zone -->
+            <div class="settings-panel" id="danger">
+              <div class="panel-card danger-zone">
+                <div class="panel-card-header">
+                  <h3>⚠️ منطقة الخطر</h3>
+                  <p>إجراءات حساسة — راجعها بعناية</p>
+                </div>
+                <div class="panel-card-body">
+                  <div style="margin-bottom:16px">
+                    <h4 style="margin:0 0 6px;font-size:15px;font-weight:700;color:var(--text)">تسجيل الخروج من جميع
+                      الأجهزة</h4>
+                    <p style="margin:0 0 14px;font-size:13.5px;color:var(--muted);line-height:1.6">
+                      سيتم تسجيل خروجك من جميع المتصفحات والأجهزة. ستحتاج لتسجيل الدخول مجددًا.
+                    </p>
+                    <button class="btn danger" id="signOutAllBtn" type="button">🚪 تسجيل الخروج من كل الأجهزة</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="logo-ring">
+      <div class="ring outer"></div>
+      <div class="ring"></div>
+      <div class="icon">🏠</div>
+    </div>
+    <h2>سكن الجامعة</h2>
+    <div class="status" id="loaderStatus">جارٍ الاتصال...</div>
+    <div class="progress">
+      <div class="bar" id="loaderBar"></div>
+    </div>
+    <div class="error-box" id="loaderErrorBox">
+      <strong>تعذّر التحميل</strong>
+      <div id="loaderErrorMsg" style="margin-top:6px"></div>
+      <button onclick="location.href='/login.html'"
+        style="margin-top:10px;background:#fff;color:#dc2626;border:0;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px">العودة
+        للدخول</button>
+    </div>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="actionOverlay">
+    <div class="card">
+      <div class="spinner"></div>
+      <div class="msg" id="actionMsg">جارٍ التنفيذ...</div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-bd" id="modalBd">
+    <div class="modal">
+      <h3 id="modalTitle">تأكيد</h3>
+      <p id="modalMessage">هل تريد المتابعة؟</p>
+      <div class="actions">
+        <button class="btn" id="modalCancel">إلغاء</button>
+        <button class="btn danger" id="modalOk">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core.js"></script>
+  <script src="/js/settings.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+
+</html>

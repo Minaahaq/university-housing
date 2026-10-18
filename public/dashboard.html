@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#635bff" />
+  <title>نظرة عامة — سكن الجامعة</title>
+
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+</head>
+
+<body>
+
+  <div class="app">
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">🏠</div>
+        <div class="brand-text">
+          <h1>سكن الجامعة</h1>
+          <p>نظام الإدارة</p>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">القائمة الرئيسية</div>
+        <a href="/dashboard.html" class="nav-link active"><span class="ico">📊</span><span>نظرة عامة</span></a>
+        <a href="/students.html" class="nav-link"><span class="ico">👥</span><span>الطلاب</span><span class="badge"
+            id="navStudentsBadge">0</span></a>
+        <a href="/rooms.html" class="nav-link"><span class="ico">🏠</span><span>الغرف</span><span class="badge"
+            id="navRoomsBadge">0</span></a>
+        <a href="/workers.html" class="nav-link"><span class="ico">🧹</span><span>العمال</span><span class="badge"
+            id="navWorkersBadge">0</span></a>
+        <a href="/permits.html" class="nav-link"><span class="ico">📋</span><span>التصاريح</span><span class="badge"
+            id="navPermitsBadge">0</span></a>
+        <a href="/payments.html" class="nav-link"><span class="ico">💵</span><span>المدفوعات</span><span class="badge"
+            id="navPaymentsBadge">0</span></a>
+        <a href="/reports.html" class="nav-link"><span class="ico">📈</span><span>التقارير</span></a>
+        <a href="/employees.html" class="nav-link"><span class="ico">👤</span><span>الموظفون</span></a>
+        <a href="/audit.html" class="nav-link"><span class="ico">📋</span><span>سجل النشاط</span></a>
+        <a href="/settings.html" class="nav-link"><span class="ico">⚙️</span><span>الإعدادات</span></a>
+      </div>
+
+      <div class="user-card">
+        <div class="avatar" id="userAvatar">؟</div>
+        <div class="who">
+          <strong id="userName">...</strong>
+          <small id="userRole">...</small>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN ==================== -->
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="القائمة">☰</button>
+        <h2 class="page-title">نظرة عامة</h2>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="refreshBtn" title="تحديث">🔄</button>
+        <button class="icon-btn" id="themeBtn" title="الوضع">🌙</button>
+        <button class="icon-btn" id="logoutBtn" title="خروج">⎋</button>
+      </header>
+
+      <main class="content" id="app" hidden>
+
+        <!-- ============ PAGE HEAD ============ -->
+        <div class="page-head">
+          <div class="titles">
+            <h1>مرحبًا بعودتك <span class="wave">👋</span></h1>
+            <p id="welcomeSubtitle">هذه نظرة سريعة على بيانات السكن</p>
+          </div>
+          <div class="actions">
+            <div class="period-filter">
+              <button class="period-btn active" data-period="month">هذا الشهر</button>
+              <button class="period-btn" data-period="3months">3 شهور</button>
+              <button class="period-btn" data-period="year">هذه السنة</button>
+              <button class="period-btn" data-period="all">الكل</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ KPI CARDS ============ -->
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-head">
+              <span class="kpi-label">الطلاب</span>
+              <div class="kpi-icon blue">👥</div>
+            </div>
+            <div class="kpi-value" id="kpiStudents">0</div>
+            <div class="kpi-hint">
+              <span id="kpiResidents">0</span> مقيم حاليًا
+            </div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-head">
+              <span class="kpi-label">الإشغال</span>
+              <div class="kpi-icon purple">🏠</div>
+            </div>
+            <div class="kpi-value" id="kpiOccupancy">0%</div>
+            <div class="kpi-hint">
+              <span id="kpiAvailable">0</span> سرير متاح
+            </div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-head">
+              <span class="kpi-label">المتأخرات</span>
+              <div class="kpi-icon red">⚠️</div>
+            </div>
+            <div class="kpi-value" id="kpiOverdue">0</div>
+            <div class="kpi-hint">جنيه</div>
+          </div>
+
+          <div class="kpi featured">
+            <div class="kpi-head">
+              <span class="kpi-label">إجمالي المدفوع</span>
+              <div class="kpi-icon white">💳</div>
+            </div>
+            <div class="kpi-value" id="kpiPaid">0</div>
+            <div class="kpi-hint">جنيه</div>
+          </div>
+        </div>
+
+        <!-- ============ CHARTS ROW ============ -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <h3>الإيرادات الشهرية</h3>
+                <p>المطلوب vs المدفوع</p>
+              </div>
+              <div class="chart-legend">
+                <span class="dot purple"></span> المطلوب
+                <span class="dot green"></span> المدفوع
+              </div>
+            </div>
+            <div class="chart-body">
+              <canvas id="chartRevenue"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <h3>حالة الطلاب</h3>
+                <p>توزيع الطلاب على الحالات</p>
+              </div>
+            </div>
+            <div class="chart-body">
+              <canvas id="chartStudents"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ TABLES ROW ============ -->
+        <div class="tables-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>آخر المدفوعات</h3>
+              <a href="/payments.html" class="link-sm">عرض الكل ←</a>
+            </div>
+            <div class="panel-body">
+              <div class="list" id="recentPayments">
+                <div class="list-empty">
+                  <div class="ico">💳</div>
+                  <p>جارٍ التحميل...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>طلاب متأخرون</h3>
+              <a href="/payments.html" class="link-sm">عرض الكل ←</a>
+            </div>
+            <div class="panel-body">
+              <div class="list" id="overdueStudents">
+                <div class="list-empty">
+                  <div class="ico">✅</div>
+                  <p>جارٍ التحميل...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ LOADER ============ -->
+  <div class="loader" id="loader">
+    <div class="logo-ring">
+      <div class="ring outer"></div>
+      <div class="ring"></div>
+      <div class="icon">🏠</div>
+    </div>
+    <h2>سكن الجامعة</h2>
+    <div class="status" id="loaderStatus">جارٍ الاتصال...</div>
+    <div class="progress">
+      <div class="bar" id="loaderBar"></div>
+    </div>
+    <div class="error-box" id="loaderErrorBox">
+      <strong>تعذّر التحميل</strong>
+      <div id="loaderErrorMsg"></div>
+    </div>
+  </div>
+
+  <!-- ============ OVERLAY ============ -->
+  <div class="overlay" id="actionOverlay">
+    <div class="card">
+      <div class="spinner"></div>
+      <div class="msg" id="actionMsg">جارٍ التنفيذ...</div>
+    </div>
+  </div>
+
+  <!-- ============ TOASTS ============ -->
+  <div class="toasts" id="toasts"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/vendor/chart.umd.min.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+
+</html>

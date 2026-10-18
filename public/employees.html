@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#635bff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>الموظفون — سكن الجامعة</title>
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/employees.css" />
+</head>
+
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">🏠</div>
+        <div class="brand-text">
+          <h1>سكن الجامعة</h1>
+          <p>نظام الإدارة</p>
+        </div>
+      </div>
+            <div class="nav-section">
+              <div class="nav-label">القائمة الرئيسية</div>
+              <a href="/dashboard.html" class="nav-link"><span class="ico">📊</span><span>نظرة عامة</span></a>
+              <a href="/students.html" class="nav-link"><span class="ico">👥</span><span>الطلاب</span><span class="badge"
+                  id="navStudentsBadge">0</span></a>
+              <a href="/rooms.html" class="nav-link"><span class="ico">🏠</span><span>الغرف</span><span class="badge"
+                  id="navRoomsBadge">0</span></a>
+              <a href="/workers.html" class="nav-link"><span class="ico">🧹</span><span>العمال</span><span class="badge"
+                  id="navWorkersBadge">0</span></a>
+              <a href="/permits.html" class="nav-link"><span class="ico">📋</span><span>التصاريح</span><span class="badge"
+                  id="navPermitsBadge">0</span></a>
+              <a href="/payments.html" class="nav-link"><span class="ico">💵</span><span>المدفوعات</span><span class="badge"
+                  id="navPaymentsBadge">0</span></a>
+              <a href="/reports.html" class="nav-link active"><span class="ico">📈</span><span>التقارير</span></a>
+              <a href="/employees.html" class="nav-link"><span class="ico">👤</span><span>الموظفون</span></a>
+              <a href="/audit.html" class="nav-link"><span class="ico">📋</span><span>سجل النشاط</span></a>
+              <a href="/settings.html" class="nav-link"><span class="ico">⚙️</span><span>الإعدادات</span></a>
+            </div>
+      <div class="user-card">
+        <div class="avatar" id="userAvatar">؟</div>
+        <div class="who"><strong id="userName">...</strong><small id="userRole">...</small></div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <h2 class="page-title">الموظفون</h2>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="themeBtn">🌙</button>
+        <button class="icon-btn" id="logoutBtn">⎋</button>
+      </header>
+
+      <main class="content" id="app" hidden>
+        <div class="page-head">
+          <div class="titles">
+            <h1>إدارة الموظفين</h1>
+            <p>إضافة، تعديل، تعطيل حسابات الموظفين</p>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="addEmployeeBtn" type="button">➕ إضافة موظف</button>
+          </div>
+        </div>
+
+        <div class="emp-stats">
+          <div class="estat">
+            <div class="ico purple">👥</div>
+            <div>
+              <div class="label">إجمالي</div>
+              <div class="value" id="statTotal">0</div>
+            </div>
+          </div>
+          <div class="estat">
+            <div class="ico">👑</div>
+            <div>
+              <div class="label">مديرون</div>
+              <div class="value" id="statAdmins">0</div>
+            </div>
+          </div>
+          <div class="estat">
+            <div class="ico green">✅</div>
+            <div>
+              <div class="label">نشطون</div>
+              <div class="value" id="statActive">0</div>
+            </div>
+          </div>
+          <div class="estat">
+            <div class="ico red">🚫</div>
+            <div>
+              <div class="label">معطلون</div>
+              <div class="value" id="statDisabled">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="toolbar">
+              <div class="search-wrap">
+                <input id="empSearch" type="search" placeholder="ابحث بالاسم أو البريد..." />
+                <span class="icon">🔍</span>
+              </div>
+              <select id="filterRole">
+                <option value="">كل الأدوار</option>
+                <option value="admin">مدير</option>
+                <option value="employee">موظف</option>
+              </select>
+              <select id="filterStatus">
+                <option value="">كل الحالات</option>
+                <option value="active">نشط</option>
+                <option value="disabled">معطل</option>
+              </select>
+              <div class="spacer"></div>
+            </div>
+
+            <div class="table-wrap">
+              <table id="empTable">
+                <thead>
+                  <tr>
+                    <th>الاسم</th>
+                    <th>البريد</th>
+                    <th>الهاتف</th>
+                    <th>الدور</th>
+                    <th>الحالة</th>
+                    <th>الصلاحيات</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="empRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawer-backdrop" id="empDrawerBackdrop"></div>
+  <div class="drawer" id="empDrawer">
+    <header>
+      <h3 id="empDrawerTitle">إضافة موظف</h3>
+      <button class="close" id="closeEmpDrawer">✕</button>
+    </header>
+    <form id="empForm">
+      <input type="hidden" id="empUid" />
+      <div class="form-grid">
+        <label class="wide">الاسم الكامل *
+          <input id="efFullName" required placeholder="مثال: أحمد علي" />
+        </label>
+        <label>البريد الإلكتروني *
+          <input id="efEmail" type="email" required placeholder="user@university.edu" />
+        </label>
+        <label>كلمة المرور *
+          <input id="efPassword" type="password" placeholder="8 أحرف على الأقل" />
+        </label>
+        <label>رقم الهاتف
+          <input id="efPhone" placeholder="01xxxxxxxxx" />
+        </label>
+        <label>الحالة
+          <select id="efStatus">
+            <option value="active">نشط</option>
+            <option value="disabled">معطل</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="wide" style="grid-column:1/-1">
+        <label
+          style="display:block;font-size:13.5px;font-weight:600;color:var(--text-2);margin-bottom:8px">الصلاحيات</label>
+        <div class="perms-grid" id="permsGrid">
+          <label class="perm-check"><input type="checkbox" value="students.view" /> عرض الطلاب</label>
+          <label class="perm-check"><input type="checkbox" value="students.create" /> إضافة طالب</label>
+          <label class="perm-check"><input type="checkbox" value="students.update" /> تعديل طالب</label>
+          <label class="perm-check"><input type="checkbox" value="students.delete" /> حذف طالب</label>
+          <label class="perm-check"><input type="checkbox" value="rooms.manage" /> إدارة الغرف</label>
+          <label class="perm-check"><input type="checkbox" value="workers.manage" /> إدارة العمال</label>
+          <label class="perm-check"><input type="checkbox" value="permits.manage" /> إدارة التصاريح</label>
+          <label class="perm-check"><input type="checkbox" value="payments.manage" /> إدارة المدفوعات</label>
+        </div>
+      </div>
+    </form>
+    <div class="drawer-actions">
+      <button type="button" class="btn" id="cancelEmpDrawer">إلغاء</button>
+      <button type="button" class="btn primary" id="saveEmpBtn">💾 حفظ</button>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="logo-ring">
+      <div class="ring outer"></div>
+      <div class="ring"></div>
+      <div class="icon">🏠</div>
+    </div>
+    <h2>سكن الجامعة</h2>
+    <div class="status" id="loaderStatus">جارٍ الاتصال...</div>
+    <div class="progress">
+      <div class="bar" id="loaderBar"></div>
+    </div>
+    <div class="error-box" id="loaderErrorBox"><strong>تعذّر التحميل</strong>
+      <div id="loaderErrorMsg"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="actionOverlay">
+    <div class="card">
+      <div class="spinner"></div>
+      <div class="msg" id="actionMsg">جارٍ التنفيذ...</div>
+    </div>
+  </div>
+
+  <div class="modal-bd" id="modalBd">
+    <div class="modal">
+      <h3 id="modalTitle">تأكيد</h3>
+      <p id="modalMessage">هل تريد المتابعة؟</p>
+      <div class="actions">
+        <button class="btn" id="modalCancel">إلغاء</button>
+        <button class="btn danger" id="modalOk">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core.js"></script>
+  <script src="/js/employees.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+
+</html>

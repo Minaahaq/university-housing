@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#635bff" />
+  <meta name="description" content="تسجيل الدخول إلى نظام إدارة سكن الجامعة" />
+  <title>تسجيل الدخول — سكن الجامعة</title>
+
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/login.css" />
+</head>
+
+<body>
+
+  <!-- ============ BACKGROUND DECORATION ============ -->
+  <div class="bg-decoration" aria-hidden="true">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+    <div class="bg-grid"></div>
+  </div>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع الليلي">🌙</button>
+
+  <!-- ============ LOGIN LAYOUT ============ -->
+  <div class="login-page">
+
+    <!-- ===== LEFT: Visual Panel ===== -->
+    <aside class="login-visual" aria-hidden="true">
+      <div class="vis-brand">
+        <div class="logo">🏠</div>
+        <div>
+          <h1>سكن الجامعة</h1>
+          <p>نظام الإدارة الذكي</p>
+        </div>
+      </div>
+
+      <div class="vis-content">
+        <h2>
+          إدارة سكن الجامعة<br>
+          <span class="gradient-text">بكل احترافية</span>
+        </h2>
+        <p>نظام متكامل لإدارة الطلاب، الغرف، المدفوعات، والتصاريح — كل شيء في مكان واحد.</p>
+
+        <div class="vis-features">
+          <div class="vis-feature">
+            <div class="ico">👥</div>
+            <div class="text">
+              <h4>إدارة الطلاب والغرف</h4>
+              <p>بيانات كاملة، بحث فوري، وتقارير دقيقة</p>
+            </div>
+          </div>
+          <div class="vis-feature">
+            <div class="ico">💵</div>
+            <div class="text">
+              <h4>المدفوعات والإيصالات</h4>
+              <p>تسجيل آمن مع إيصالات قابلة للطباعة</p>
+            </div>
+          </div>
+          <div class="vis-feature">
+            <div class="ico">📊</div>
+            <div class="text">
+              <h4>تقارير وإحصاءات</h4>
+              <p>لوحة تحكم تعرض كل الأرقام المهمة</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vis-footer">
+        <span class="status-dot"></span>
+        النظام يعمل الآن — متاح على مدار الساعة
+      </div>
+    </aside>
+
+    <!-- ===== RIGHT: Form Panel ===== -->
+    <main class="login-form-panel">
+      <div class="login-form-wrap">
+
+        <div class="mobile-brand">
+          <div class="logo">🏠</div>
+          <div>
+            <h1>سكن الجامعة</h1>
+            <p>نظام الإدارة</p>
+          </div>
+        </div>
+
+        <div class="form-header">
+          <h2>مرحبًا بعودتك 👋</h2>
+          <p class="subtitle">سجّل الدخول للوصول إلى لوحة التحكم</p>
+        </div>
+
+        <div class="login-alert" id="loginAlert" role="alert" aria-live="polite"></div>
+
+        <form id="loginForm" novalidate autocomplete="on">
+
+          <div class="form-group" id="emailGroup">
+            <label for="email">البريد الإلكتروني</label>
+            <div class="input-wrap">
+              <input type="email" id="email" name="email" placeholder="you@university.edu" autocomplete="username"
+                inputmode="email" spellcheck="false" required />
+              <span class="ico" aria-hidden="true">✉</span>
+            </div>
+            <div class="error-msg" role="alert">الرجاء إدخال بريد إلكتروني صالح</div>
+          </div>
+
+          <div class="form-group" id="passwordGroup">
+            <label for="password">كلمة المرور</label>
+            <div class="input-wrap">
+              <input type="password" id="password" name="password" placeholder="••••••••"
+                autocomplete="current-password" required minlength="8" />
+              <span class="ico" aria-hidden="true">🔒</span>
+              <button type="button" class="toggle-password" id="togglePassword" aria-label="إظهار كلمة المرور"
+                tabindex="0">👁</button>
+            </div>
+            <div class="error-msg" role="alert">كلمة المرور مطلوبة (8 أحرف على الأقل)</div>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-wrap">
+              <input type="checkbox" id="rememberMe" />
+              <span>تذكرني</span>
+            </label>
+            <a href="#" id="forgotPasswordLink" class="link">نسيت كلمة المرور؟</a>
+          </div>
+
+          <button type="submit" class="btn-login" id="loginBtn">
+            <span class="btn-content">
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="btn-text">تسجيل الدخول</span>
+            </span>
+          </button>
+
+        </form>
+
+        <div class="login-footer">
+          <div class="divider"><span>أو</span></div>
+          <div class="contact">
+            📧 للدعم الفني: <a href="mailto:support@university.edu" class="link">support@university.edu</a>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/login.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+
+</html>

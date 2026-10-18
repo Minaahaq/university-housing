@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#635bff" />
+  <title>العمال — سكن الجامعة</title>
+
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/workers.css" />
+</head>
+
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">🏠</div>
+        <div class="brand-text">
+          <h1>سكن الجامعة</h1>
+          <p>نظام الإدارة</p>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">القائمة الرئيسية</div>
+        <a href="/dashboard.html" class="nav-link"><span class="ico">📊</span><span>نظرة عامة</span></a>
+        <a href="/students.html" class="nav-link"><span class="ico">👥</span><span>الطلاب</span><span class="badge"
+            id="navStudentsBadge">0</span></a>
+        <a href="/rooms.html" class="nav-link"><span class="ico">🏠</span><span>الغرف</span><span class="badge"
+            id="navRoomsBadge">0</span></a>
+        <a href="/workers.html" class="nav-link active"><span class="ico">🧹</span><span>العمال</span><span
+            class="badge" id="navWorkersBadge">0</span></a>
+        <a href="/permits.html" class="nav-link"><span class="ico">📋</span><span>التصاريح</span><span class="badge"
+            id="navPermitsBadge">0</span></a>
+        <a href="/payments.html" class="nav-link"><span class="ico">💵</span><span>المدفوعات</span><span class="badge"
+            id="navPaymentsBadge">0</span></a>
+        <a href="/reports.html" class="nav-link"><span class="ico">📈</span><span>التقارير</span></a>
+        <a href="/employees.html" class="nav-link"><span class="ico">👤</span><span>الموظفون</span></a>
+        <a href="/audit.html" class="nav-link"><span class="ico">📋</span><span>سجل النشاط</span></a>
+        <a href="/settings.html" class="nav-link"><span class="ico">⚙️</span><span>الإعدادات</span></a>
+      </div>
+      <div class="user-card">
+        <div class="avatar" id="userAvatar">؟</div>
+        <div class="who"><strong id="userName">...</strong><small id="userRole">...</small></div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="القائمة">☰</button>
+        <h2 class="page-title">العمال</h2>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="exportBtn" title="تصدير CSV">📥</button>
+        <button class="icon-btn" id="themeBtn" title="الوضع">🌙</button>
+        <button class="icon-btn" id="logoutBtn" title="خروج">⎋</button>
+      </header>
+
+      <main class="content" id="app" hidden>
+
+        <div class="page-head">
+          <div class="titles">
+            <h1>العمال</h1>
+            <p>إدارة بيانات العمال والمستحقات</p>
+          </div>
+          <button class="btn primary" id="addWorkerBtn" type="button">
+            <span>➕</span>
+            <span>إضافة عامل</span>
+          </button>
+        </div>
+
+<!-- Stats Cards -->
+<div class="stats-cards">
+  <div class="stat-card-modern">
+    <div class="sc-icon sc-blue">💼</div>
+    <div class="sc-info">
+      <div class="sc-label">إجمالي</div>
+      <div class="sc-value" id="statsTotal">0</div>
+    </div>
+    <div class="sc-glow"></div>
+  </div>
+
+  <div class="stat-card-modern">
+    <div class="sc-icon sc-green">✅</div>
+    <div class="sc-info">
+      <div class="sc-label">مسدد</div>
+      <div class="sc-value" id="statsPaid">0</div>
+    </div>
+    <div class="sc-glow"></div>
+  </div>
+
+  <div class="stat-card-modern">
+    <div class="sc-icon sc-amber">⏳</div>
+    <div class="sc-info">
+      <div class="sc-label">جزئي</div>
+      <div class="sc-value" id="statsPartial">0</div>
+    </div>
+    <div class="sc-glow"></div>
+  </div>
+
+  <div class="stat-card-modern sc-featured">
+    <div class="sc-icon sc-white">⚠️</div>
+    <div class="sc-info">
+      <div class="sc-label">غير مدفوع</div>
+      <div class="sc-value" id="statsUnpaid">0</div>
+    </div>
+    <div class="sc-glow"></div>
+  </div>
+</div>
+
+        <!-- Table Card -->
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-wrap">
+              <span class="icon" aria-hidden="true">🔍</span>
+              <input id="workerSearch" type="search" placeholder="ابحث بالاسم، المهمة، الهاتف..."
+                aria-label="بحث العمال" />
+            </div>
+            <select id="filterStatus" aria-label="تصفية بالحالة المالية">
+              <option value="">كل الحالات</option>
+              <option value="paid">مسدد</option>
+              <option value="partial">جزئي</option>
+              <option value="unpaid">غير مدفوع</option>
+            </select>
+            <button class="btn sm" id="clearFiltersBtn" type="button" title="مسح الفلاتر">✕ مسح</button>
+          </div>
+
+          <div class="tablewrap">
+            <table id="workersTable">
+              <thead>
+                <tr>
+                  <th data-sort="name">الاسم<span class="sort-ind">↕</span></th>
+                  <th>المهمة</th>
+                  <th>الهاتف</th>
+                  <th>الفترة</th>
+                  <th data-sort="due">المستحق<span class="sort-ind">↕</span></th>
+                  <th data-sort="paid">المدفوع<span class="sort-ind">↕</span></th>
+                  <th>المتبقي</th>
+                  <th>الحالة</th>
+                  <th class="no-print">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="workerRows"></tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="workersPagination"></div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawer-backdrop" id="workerDrawerBackdrop"></div>
+  <div class="drawer" id="workerDrawer" role="dialog" aria-modal="true">
+    <header>
+      <h3 id="workerDrawerTitle">إضافة عامل</h3>
+      <button class="close" id="closeWorkerDrawer" type="button" aria-label="إغلاق">✕</button>
+    </header>
+
+    <form id="workerForm" autocomplete="off">
+      <input type="hidden" id="workerId" />
+      <div class="form-grid">
+        <label class="wide">اسم العامل <span class="req">*</span>
+          <input id="wName" required placeholder="مثال: محمد إبراهيم" />
+        </label>
+        <label>المهمة
+          <input id="wJob" placeholder="نظافة، صيانة..." />
+        </label>
+        <label>الهاتف
+          <input id="wPhone" inputmode="tel" placeholder="01xxxxxxxxx" />
+        </label>
+        <label>من تاريخ
+          <input id="wFrom" type="date" />
+        </label>
+        <label>إلى تاريخ
+          <input id="wTo" type="date" />
+        </label>
+        <label>المستحق (ج)
+          <input id="wDue" type="number" min="0" step="0.01" value="0" />
+        </label>
+        <label>المدفوع (ج)
+          <input id="wPaid" type="number" min="0" step="0.01" value="0" />
+        </label>
+        <label class="wide">ملاحظات
+          <textarea id="wNotes" placeholder="أي ملاحظات عن العامل..."></textarea>
+        </label>
+      </div>
+    </form>
+
+    <div class="drawer-actions">
+      <button type="button" class="btn" id="cancelWorkerDrawer">إلغاء</button>
+      <button type="button" class="btn primary" id="saveWorkerBtn">
+        <span>💾</span><span>حفظ</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="logo-ring">
+      <div class="ring outer"></div>
+      <div class="ring"></div>
+      <div class="icon">🏠</div>
+    </div>
+    <h2>سكن الجامعة</h2>
+    <div class="status" id="loaderStatus">جارٍ الاتصال...</div>
+    <div class="progress">
+      <div class="bar" id="loaderBar"></div>
+    </div>
+    <div class="error-box" id="loaderErrorBox">
+      <strong>تعذّر التحميل</strong>
+      <div id="loaderErrorMsg"></div>
+    </div>
+  </div>
+
+  <!-- Action Overlay -->
+  <div class="overlay" id="actionOverlay">
+    <div class="card">
+      <div class="spinner"></div>
+      <div class="msg" id="actionMsg">جارٍ التنفيذ...</div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-bd" id="modalBd">
+    <div class="modal">
+      <h3 id="modalTitle">تأكيد</h3>
+      <p id="modalMessage">هل تريد المتابعة؟</p>
+      <div class="actions">
+        <button class="btn" id="modalCancel">إلغاء</button>
+        <button class="btn danger" id="modalOk">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toasts" id="toasts"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core.js"></script>
+  <script src="/js/workers.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+
+</html>

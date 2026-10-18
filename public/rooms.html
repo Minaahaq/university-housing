@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#635bff" />
+  <title>الغرف — سكن الجامعة</title>
+
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/rooms.css" />
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">🏠</div>
+        <div class="brand-text">
+          <h1>سكن الجامعة</h1>
+          <p>نظام الإدارة</p>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">القائمة</div>
+        <a href="/dashboard.html" class="nav-link"><span class="ico">📊</span><span>نظرة عامة</span></a>
+        <a href="/students.html" class="nav-link"><span class="ico">👥</span><span>الطلاب</span><span class="badge"
+            id="navStudentsBadge">0</span></a>
+        <a href="/rooms.html" class="nav-link active"><span class="ico">🏠</span><span>الغرف</span><span class="badge"
+            id="navRoomsBadge">0</span></a>
+        <a href="/workers.html" class="nav-link"><span class="ico">🧹</span><span>العمال</span><span class="badge"
+            id="navWorkersBadge">0</span></a>
+        <a href="/permits.html" class="nav-link"><span class="ico">📋</span><span>التصاريح</span><span class="badge"
+            id="navPermitsBadge">0</span></a>
+        <a href="/payments.html" class="nav-link"><span class="ico">💵</span><span>المدفوعات</span><span class="badge"
+            id="navPaymentsBadge">0</span></a>
+        <a href="/reports.html" class="nav-link"><span class="ico">📈</span><span>التقارير</span></a>
+        <a href="/employees.html" class="nav-link"><span class="ico">👤</span><span>الموظفون</span></a>
+        <a href="/audit.html" class="nav-link"><span class="ico">📋</span><span>سجل النشاط</span></a>
+        <a href="/settings.html" class="nav-link"><span class="ico">⚙️</span><span>الإعدادات</span></a>
+      </div>
+      <div class="user-card">
+        <div class="avatar" id="userAvatar">؟</div>
+        <div class="who"><strong id="userName">...</strong><small id="userRole">...</small></div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN ==================== -->
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="القائمة">☰</button>
+        <h2 class="page-title">الغرف</h2>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="refreshBtn" title="تحديث">🔄</button>
+        <button class="icon-btn" id="themeBtn" title="الوضع">🌙</button>
+        <button class="icon-btn" id="logoutBtn" title="خروج">⎋</button>
+      </header>
+
+      <main class="content" id="app" hidden>
+
+        <!-- Page Head -->
+        <div class="page-head">
+          <div class="titles">
+            <h1>الغرف</h1>
+            <p>عرض بصري لكل غرف السكن وحالتها</p>
+          </div>
+          <div class="actions">
+            <button class="btn" id="addBuildingBtn" type="button">
+              <span>🏢</span><span>مبنى</span>
+            </button>
+            <button class="btn primary" id="addRoomBtn" type="button">
+              <span>➕</span><span>غرفة</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ============ KPI CARDS ============ -->
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-icon blue">🏢</div>
+            <div class="kpi-body">
+              <div class="kpi-label">المباني</div>
+              <div class="kpi-value" id="kpiBuildings">0</div>
+            </div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-icon purple">🚪</div>
+            <div class="kpi-body">
+              <div class="kpi-label">الغرف</div>
+              <div class="kpi-value" id="kpiRooms">0</div>
+            </div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-icon green">🛏️</div>
+            <div class="kpi-body">
+              <div class="kpi-label">أسرّة متاحة</div>
+              <div class="kpi-value" id="kpiAvailable">0</div>
+            </div>
+          </div>
+          <div class="kpi featured">
+            <div class="kpi-icon white">📊</div>
+            <div class="kpi-body">
+              <div class="kpi-label">نسبة الإشغال</div>
+              <div class="kpi-value" id="kpiOccupancy">0%</div>
+            </div>
+            <div class="kpi-progress">
+              <div class="kpi-progress-fill" id="occupancyFill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ FILTERS ============ -->
+        <div class="filters-bar">
+          <div class="filter-search">
+            <span class="search-icon">🔍</span>
+            <input id="roomSearch" type="search" placeholder="ابحث برقم الغرفة..." />
+          </div>
+          <div class="filter-chips" id="buildingChips">
+            <button class="chip active" data-building="">كل المباني</button>
+          </div>
+          <div class="filter-toggle">
+            <button class="toggle-btn active" data-status="">الكل</button>
+            <button class="toggle-btn" data-status="متاحة">متاحة</button>
+            <button class="toggle-btn" data-status="مشغولة">مشغولة</button>
+            <button class="toggle-btn" data-status="صيانة">صيانة</button>
+          </div>
+        </div>
+
+        <!-- ============ FLOOR PLAN ============ -->
+        <div class="floor-plan" id="floorPlan"></div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== BOTTOM SHEET — Room Details ==================== -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="sheet" id="roomSheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <header class="sheet-head">
+      <div>
+        <h3 id="sheetTitle">غرفة</h3>
+        <p id="sheetSubtitle"></p>
+      </div>
+      <button class="sheet-close" id="closeSheet" aria-label="إغلاق">✕</button>
+    </header>
+    <div class="sheet-body" id="sheetBody"></div>
+    <div class="sheet-actions" id="sheetActions"></div>
+  </div>
+
+  <!-- ==================== MODAL — Room Form ==================== -->
+  <div class="modal-backdrop" id="roomModalBackdrop"></div>
+  <div class="modal" id="roomModal">
+    <header class="modal-head">
+      <h3 id="roomModalTitle">إضافة غرفة</h3>
+      <button class="modal-close" id="closeRoomModal" aria-label="إغلاق">✕</button>
+    </header>
+    <form id="roomForm" class="modal-body">
+      <input type="hidden" id="rfId" />
+      <div class="form-grid">
+        <label class="wide">المبنى <span class="req">*</span>
+          <select id="rfBuilding" required></select>
+        </label>
+        <label>الجناح
+          <select id="rfWing">
+            <option>أ</option>
+            <option>ب</option>
+            <option>ج</option>
+            <option>د</option>
+          </select>
+        </label>
+        <label>الدور
+          <select id="rfFloor">
+            <option>الأول</option>
+            <option>الثاني</option>
+            <option>الثالث</option>
+            <option>الرابع</option>
+          </select>
+        </label>
+        <label>رقم الغرفة <span class="req">*</span>
+          <input id="rfNumber" required placeholder="101" />
+        </label>
+        <label>السعة
+          <select id="rfCapacity">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+        <label class="wide">الحالة
+          <select id="rfStatus">
+            <option>متاحة</option>
+            <option>مشغولة</option>
+            <option>صيانة</option>
+          </select>
+        </label>
+      </div>
+    </form>
+    <footer class="modal-foot">
+      <button type="button" class="btn" id="cancelRoomModal">إلغاء</button>
+      <button type="button" class="btn primary" id="saveRoomBtn">💾 حفظ</button>
+    </footer>
+  </div>
+
+  <!-- ==================== MODAL — Building Form ==================== -->
+  <div class="modal-backdrop" id="buildingModalBackdrop"></div>
+  <div class="modal" id="buildingModal">
+    <header class="modal-head">
+      <h3>إضافة مبنى</h3>
+      <button class="modal-close" id="closeBuildingModal" aria-label="إغلاق">✕</button>
+    </header>
+    <form id="buildingForm" class="modal-body">
+      <div class="form-grid">
+        <label class="wide">اسم المبنى <span class="req">*</span>
+          <input id="bfName" required placeholder="مثال: مبنى أ" />
+        </label>
+        <label>عدد الأدوار
+          <input id="bfFloors" type="number" min="1" max="20" value="4" />
+        </label>
+      </div>
+    </form>
+    <footer class="modal-foot">
+      <button type="button" class="btn" id="cancelBuildingModal">إلغاء</button>
+      <button type="button" class="btn primary" id="saveBuildingBtn">💾 حفظ</button>
+    </footer>
+  </div>
+
+  <!-- ==================== LOADER ==================== -->
+  <div class="loader" id="loader">
+    <div class="loader-ring">
+      <div class="ring outer"></div>
+      <div class="ring"></div>
+      <div class="loader-icon">🏠</div>
+    </div>
+    <h2>سكن الجامعة</h2>
+    <div class="loader-status" id="loaderStatus">جارٍ الاتصال...</div>
+    <div class="loader-progress">
+      <div class="loader-bar" id="loaderBar"></div>
+    </div>
+    <div class="loader-error" id="loaderError">
+      <strong>تعذّر التحميل</strong>
+      <div id="loaderErrorMsg"></div>
+    </div>
+  </div>
+
+  <!-- ==================== ACTION OVERLAY ==================== -->
+  <div class="action-overlay" id="actionOverlay">
+    <div class="action-card">
+      <div class="action-spinner"></div>
+      <div class="action-msg" id="actionMsg">جارٍ التنفيذ...</div>
+    </div>
+  </div>
+
+  <!-- ==================== CONFIRM MODAL ==================== -->
+  <div class="modal-backdrop" id="confirmBackdrop"></div>
+  <div class="modal confirm-modal" id="confirmModal">
+    <header class="modal-head">
+      <h3 id="confirmTitle">تأكيد</h3>
+    </header>
+    <div class="modal-body">
+      <p id="confirmMessage" style="margin:0;color:var(--text-2);font-size:14.5px;line-height:1.7"></p>
+    </div>
+    <footer class="modal-foot">
+      <button class="btn" id="confirmCancel">إلغاء</button>
+      <button class="btn danger" id="confirmOk">تأكيد</button>
+    </footer>
+  </div>
+
+  <!-- ==================== TOASTS ==================== -->
+  <div class="toasts" id="toasts"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core.js"></script>
+  <script src="/js/rooms.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,137 @@
+:root {
+  --navy: #0f2540;
+  --navy-2: #1a3a5c;
+  --blue: #2563eb;
+  --blue-light: #3b82f6;
+  --white: #ffffff;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-500: #64748b;
+  --gray-700: #334155;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --radius: 10px;
+  --shadow: 0 4px 20px rgba(15, 37, 64, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-700);
+  direction: rtl;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  padding: 20px;
+}
+
+.auth-card {
+  background: var(--white);
+  width: 100%;
+  max-width: 420px;
+  padding: 36px 32px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.auth-card h1 {
+  margin: 0 0 6px;
+  color: var(--navy);
+  font-size: 24px;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--gray-500);
+  margin: 0 0 24px;
+  font-size: 14px;
+}
+
+.auth-card label {
+  display: block;
+  margin: 14px 0 6px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--gray-700);
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color .15s;
+  background: var(--gray-50);
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: var(--blue);
+  background: var(--white);
+}
+
+.auth-card button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 12px;
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.auth-card button:hover:not(:disabled) {
+  background: var(--navy-2);
+}
+
+.auth-card button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.message {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  min-height: 20px;
+  display: none;
+}
+
+.message.error {
+  display: block;
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.message.success {
+  display: block;
+  background: #dcfce7;
+  color: var(--success);
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 28px 20px;
+  }
+}
