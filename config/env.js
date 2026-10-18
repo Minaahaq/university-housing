@@ -2,17 +2,23 @@
 
 require('dotenv').config();
 
-/**
- * التحقق من وجود المتغيرات الإلزامية عند بدء التشغيل.
- */
-const required = ['FIREBASE_PROJECT_ID', 'FIREBASE_SERVICE_ACCOUNT_PATH'];
+const required = ['FIREBASE_PROJECT_ID'];
 
 for (const key of required) {
   if (!process.env[key]) {
-    // eslint-disable-next-line no-console
     console.error(`❌ متغير البيئة المطلوب غير موجود: ${key}`);
     process.exit(1);
   }
+}
+
+const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+
+if (!serviceAccountPath && !serviceAccountJson) {
+  console.error(
+    '❌ أضف FIREBASE_SERVICE_ACCOUNT_PATH أو FIREBASE_SERVICE_ACCOUNT_JSON'
+  );
+  process.exit(1);
 }
 
 const env = {
@@ -20,7 +26,8 @@ const env = {
   port: parseInt(process.env.PORT, 10) || 3000,
   firebase: {
     projectId: process.env.FIREBASE_PROJECT_ID,
-    serviceAccountPath: process.env.FIREBASE_SERVICE_ACCOUNT_PATH,
+    serviceAccountPath,
+    serviceAccountJson,
   },
   cors: {
     allowedOrigins: (process.env.ALLOWED_ORIGINS || '')

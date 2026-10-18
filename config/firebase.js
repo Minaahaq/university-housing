@@ -5,15 +5,35 @@ const fs = require('fs');
 const admin = require('firebase-admin');
 const env = require('./env');
 
-const serviceAccountPath = path.resolve(env.firebase.serviceAccountPath);
+let serviceAccount;
 
-if (!fs.existsSync(serviceAccountPath)) {
-  // eslint-disable-next-line no-console
-  console.error(`❌ ملف Service Account غير موجود في: ${serviceAccountPath}`);
-  process.exit(1);
+if (env.firebase.serviceAccountJson) {
+  try {
+    serviceAccount = JSON.parse(env.firebase.serviceAccountJson);
+  } catch (error) {
+    console.error('❌ FIREBASE_SERVICE_ACCOUNT_JSON ليس JSON صالحًا.');
+    process.exit(1);
+  }
+} else {
+  const serviceAccountPath = path.resolve(
+    process.cwd(),
+    env.firebase.serviceAccountPath
+  );
+
+  if (!fs.existsSync(serviceAccountPath)) {
+    console.error(`❌ ملف Service Account غير موجود: ${serviceAccountPath}`);
+    process.exit(1);
+  }
+
+  try {
+    serviceAccount = JSON.parse(
+      fs.readFileSync(serviceAccountPath, 'utf8')
+    );
+  } catch (error) {
+    console.error('❌ تعذرت قراءة ملف Service Account.');
+    process.exit(1);
+  }
 }
-
-const serviceAccount = require(serviceAccountPath);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -23,7 +43,6 @@ admin.initializeApp({
 const auth = admin.auth();
 const db = admin.firestore();
 
-// إعدادات Firestore
 db.settings({ ignoreUndefinedProperties: true });
 
 module.exports = { admin, auth, db };
