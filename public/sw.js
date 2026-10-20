@@ -1,8 +1,9 @@
 /* ==========================================
    Service Worker — University Housing PWA
+   v2.0.0 — Auto-versioned + Safe updates
    ========================================== */
 
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v2.0.0'; // 👈 غيّر ده كل مرة تعدّل ملف
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 
@@ -45,18 +46,18 @@ const PRECACHE_URLS = [
   '/js/employees.js',
   '/js/audit.js',
   '/js/settings.js',
+  '/js/pwa.js',
   '/js/vendor/chart.umd.min.js',
   '/manifest.json',
 ];
 
 /* ========== Install ========== */
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing...');
+  console.log('[SW] Installing...', CACHE_VERSION);
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then(cache => {
         console.log('[SW] Caching static assets');
-        // استخدم addAll مع تجاهل الفشل للملفات الفردية
         return Promise.allSettled(
           PRECACHE_URLS.map(url =>
             cache.add(url).catch(err => {
@@ -65,13 +66,18 @@ self.addEventListener('install', (event) => {
           )
         );
       })
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.log('[SW] Installed. Waiting for activation...');
+        // ملاحظة: مش بنعمل skipWaiting هنا تلقائياً
+        // عشان نسمح للمستخدم يتحكم في وقت التحديث
+        // الـ skipWaiting هيجي من رسالة SKIP_WAITING
+      })
   );
 });
 
 /* ========== Activate ========== */
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating...');
+  console.log('[SW] Activating...', CACHE_VERSION);
   event.waitUntil(
     caches.keys()
       .then(cacheNames => Promise.all(
@@ -82,7 +88,10 @@ self.addEventListener('activate', (event) => {
             return caches.delete(name);
           })
       ))
-      .then(() => self.clients.claim())
+      .then(() => {
+        console.log('[SW] Claiming clients...');
+        return self.clients.claim();
+      })
   );
 });
 
@@ -91,26 +100,29 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // تجاهل طلبات API و Firebase (لا تُخزَّن)
+  // تجاهل طلبات غير GET
+  if (request.method !== 'GET') return;
+
+  // تجاهل طلبات API و Firebase
   if (
     url.pathname.startsWith('/api/') ||
     url.hostname.includes('firebaseio.com') ||
     url.hostname.includes('googleapis.com') ||
     url.hostname.includes('gstatic.com') ||
-    url.hostname.includes('firebaseapp.com') ||
-    request.method !== 'GET'
+    url.hostname.includes('firebaseapp.com')
   ) {
-    return; // مرر للشبكة مباشرة
+    return;
   }
 
-  // استراتيجية: Network First للـ HTML (للتحديثات)
-  // Fallback إلى cache إن فشلت الشبكة
-  if (request.headers.get('accept')?.includes('text/html')) {
+  // استراتيجية: Network First للـ HTML
+  if (request.headers.get('accept')?.includes('text/html') || request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: 'no-store' }) // 👈 تجاهل HTTP cache
         .then(response => {
-          const clone = response.clone();
-          caches.open(RUNTIME_CACHE).then(cache => cache.put(request, clone));
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(RUNTIME_CACHE).then(cache => cache.put(request, clone));
+          }
           return response;
         })
         .catch(async () => {
@@ -121,12 +133,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // استراتيجية: Cache First للأصول الثابتة (CSS, JS, images)
+  // استراتيجية: Cache First للأصول الثابتة
   event.respondWith(
     caches.match(request)
       .then(cached => {
         if (cached) {
-          // أعد التخزين في الخلفية للتحديث
+          // تحديث في الخلفية (Stale-While-Revalidate)
           fetch(request).then(response => {
             if (response.ok) {
               caches.open(RUNTIME_CACHE).then(cache => cache.put(request, response));
@@ -145,9 +157,13 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-/* ========== Message — للتحكم بالتحديث ========== */
+/* ========== Message ========== */
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') {
+    console.log('[SW] SKIP_WAITING received, activating immediately');
     self.skipWaiting();
+  }
+  if (event.data === 'GET_VERSION') {
+    event.source?.postMessage({ type: 'VERSION', version: CACHE_VERSION });
   }
 });
