@@ -1,5 +1,5 @@
 /* ==========================================
-   PWA Registration & Update Manager — v2
+   PWA Registration & Update Manager — v3
    ========================================== */
 
 (function () {
@@ -11,74 +11,125 @@
   }
 
   // ==========================================
-  // 1) تسجيل Service Worker (بدون HTTP cache)
+  // 0) متغيرات عامة
+  // ==========================================
+  let currentRegistration = null;
+  let updateBarShown = false; // 👈 عشان نمنع تكرار الشريط
+  let deferredPrompt = null;
+  let refreshing = false;
+  let pendingReload = false;  // 👈 لو الـ UI مفتوح وما قدرناش نعمل reload
+
+  // ==========================================
+  // 1) تسجيل Service Worker
   // ==========================================
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/',
-        updateViaCache: 'none' // 👈 مهم جداً: لا تخزّن sw.js في HTTP cache
+        updateViaCache: 'none' // 👈 مهم جداً
       });
 
+      currentRegistration = registration;
       console.log('[PWA] ✅ Service Worker مسجل:', registration.scope);
 
       // فحص التحديث فوراً
-      registration.update().catch(() => {});
+      safeUpdate(registration);
 
-      // 2) اكتشاف تحديث
+      // اكتشاف تحديث عبر updatefound
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (!newWorker) return;
 
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showUpdateToast(newWorker);
+            showUpdateToast(registration);
           }
         });
       });
 
-      // فحص التحديث كل 60 ثانية (لو الصفحة مفتوحة)
-      setInterval(() => registration.update().catch(() => {}), 60 * 1000);
+      // fallback: راقب الـ waiting مباشرةً (لو updatefound فشل)
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        showUpdateToast(registration);
+      }
+
+      // فحص التحديث كل 60 ثانية
+      setInterval(() => safeUpdate(registration), 60 * 1000);
 
       // فحص التحديث عند رجوع المستخدم للصفحة
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
-          registration.update().catch(() => {});
+          safeUpdate(registration);
+          maybeReloadPending();
         }
       });
+
+      // فحص التحديث عند عودة الإنترنت
+      window.addEventListener('online', () => safeUpdate(registration));
 
     } catch (err) {
       console.error('[PWA] ❌ فشل التسجيل:', err);
     }
   });
 
+  // helper: فحص تحديث بأمان
+  function safeUpdate(registration) {
+    if (!registration) return;
+    registration.update().catch(() => {});
+  }
+
   // ==========================================
-  // 3) عند التحكم بعد التحديث — أعد التحميل مرة واحدة
+  // 2) عند التحكم بعد التحديث
   // ==========================================
-  let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (refreshing) return;
     refreshing = true;
-    // لو فيه drawer/modal مفتوح، متعملش reload فجائي
-    const hasOpenUI = document.querySelector('.drawer.open, .modal-bd.open, .overlay.open');
+
+    const hasOpenUI = document.querySelector(
+      '.drawer.open, .drawer[aria-hidden="false"], .modal-bd.open, .overlay.open, .overlay[style*="display: block"]'
+    );
+
     if (hasOpenUI) {
+      // خزّن إننا محتاجين reload، وننفذه لما الـ UI يتقفل
+      pendingReload = true;
       if (window.__core?.toast) {
         window.__core.toast('تحديث جاهز. أغلق النوافذ ثم أعد التحميل.', 'info');
       }
       return;
     }
+
     window.location.reload();
   });
 
+  // retry الـ reload لما الـ UI يتقفل
+  function maybeReloadPending() {
+    if (!pendingReload) return;
+    const hasOpenUI = document.querySelector(
+      '.drawer.open, .drawer[aria-hidden="false"], .modal-bd.open, .overlay.open'
+    );
+    if (!hasOpenUI) {
+      window.location.reload();
+    }
+  }
+
+  // راقب إغلاق أي drawer/modal
+  document.addEventListener('click', (e) => {
+    // بعد أي click، افحص لو الـ UI اتقفل
+    setTimeout(maybeReloadPending, 300);
+  }, true);
+
   // ==========================================
-  // 4) إشعار التحديث
+  // 3) إشعار التحديث
   // ==========================================
-  function showUpdateToast(worker) {
+  function showUpdateToast(registration) {
+    if (updateBarShown) return;
+    updateBarShown = true;
+
     if (window.__core?.toast) {
-      window.__core.toast('تحديث جديد متاح. جارٍ التطبيق...', 'info');
+      window.__core.toast('تحديث جديد متاح', 'info');
     }
 
     const bar = document.createElement('div');
+    bar.id = 'pwa-update-bar';
     bar.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -98,6 +149,7 @@
       font-size: 14px;
       font-weight: 600;
       max-width: 92vw;
+      animation: pwaSlideUp .3s ease;
     `;
     bar.innerHTML = `
       <span>🎉 تحديث جديد متاح</span>
@@ -123,34 +175,49 @@
     `;
     document.body.appendChild(bar);
 
+    // style animation
+    if (!document.getElementById('pwa-styles')) {
+      const style = document.createElement('style');
+      style.id = 'pwa-styles';
+      style.textContent = `@keyframes pwaSlideUp { from { transform: translateX(-50%) translateY(100%); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }`;
+      document.head.appendChild(style);
+    }
+
+    // زر التحديث
     document.getElementById('pwa-update-btn').addEventListener('click', () => {
-      worker.postMessage('SKIP_WAITING');
+      // 👈 الأهم: ابعت للـ waiting worker مش installing
+      const waiting = registration.waiting;
+      if (waiting) {
+        waiting.postMessage('SKIP_WAITING');
+      } else if (registration.active) {
+        registration.active.postMessage('SKIP_WAITING');
+      }
       bar.remove();
+      updateBarShown = false;
     });
 
+    // زر الإغلاق
     document.getElementById('pwa-dismiss-btn').addEventListener('click', () => {
       bar.remove();
+      updateBarShown = false;
     });
   }
 
   // ==========================================
-  // 5) إشعار "قابل للتثبيت"
+  // 4) إشعار "قابل للتثبيت"
   // ==========================================
-  let deferredPrompt = null;
-
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-
-    setTimeout(() => {
-      showInstallBanner();
-    }, 5000);
+    setTimeout(() => showInstallBanner(), 5000);
   });
 
   function showInstallBanner() {
     if (!deferredPrompt || sessionStorage.getItem('pwa-install-dismissed')) return;
+    if (document.getElementById('pwa-install-banner')) return;
 
     const banner = document.createElement('div');
+    banner.id = 'pwa-install-banner';
     banner.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -169,7 +236,7 @@
       gap: 12px;
       font-family: 'Cairo', Tahoma, sans-serif;
       color: #fff;
-      animation: slideUp .3s ease;
+      animation: pwaSlideUp .3s ease;
     `;
     banner.innerHTML = `
       <div style="font-size: 28px;">📱</div>
@@ -200,10 +267,6 @@
     `;
     document.body.appendChild(banner);
 
-    const style = document.createElement('style');
-    style.textContent = `@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`;
-    document.head.appendChild(style);
-
     document.getElementById('pwa-install-btn').addEventListener('click', async () => {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
@@ -220,7 +283,7 @@
   }
 
   // ==========================================
-  // 6) مراقبة حالة الاتصال
+  // 5) مراقبة حالة الاتصال
   // ==========================================
   window.addEventListener('offline', () => {
     if (window.__core?.toast) {
@@ -232,6 +295,29 @@
       window.__core.toast('عاد الاتصال بالإنترنت', 'success');
     }
   });
+
+  // ==========================================
+  // 6) API يدوي للتحديث (اختياري للاستخدام من console)
+  // ==========================================
+  window.__pwa = {
+    checkForUpdate() {
+      if (currentRegistration) {
+        currentRegistration.update().catch(() => {});
+        console.log('[PWA] فحص التحديث يدوياً...');
+      }
+    },
+    async clearCaches() {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+      console.log('[PWA] تم مسح كل الكاش. أعد تحميل الصفحة.');
+    },
+    async unregister() {
+      if (currentRegistration) {
+        await currentRegistration.unregister();
+        console.log('[PWA] تم إلغاء التسجيل. أعد تحميل الصفحة.');
+      }
+    }
+  };
 
   console.log('[PWA] ✅ جاهز');
 })();
