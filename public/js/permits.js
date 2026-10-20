@@ -22,10 +22,6 @@ const permitsState = {
 (async function boot() {
   const { loader, requireSession, hydrateUser, initShell, apiGet } = window.__core;
 
-  document.getElementById('permitDrawer')?.classList.remove('open');
-  document.getElementById('permitDrawerBackdrop')?.classList.remove('open');
-  document.body.classList.remove('drawer-open');
-
   loader.show('جارٍ الاتصال...', 5);
 
   try {
@@ -74,10 +70,34 @@ function typeBadge(type) {
     'تصريح مبيت': 'mabeet',
     'تصريح سفر': 'safar',
     'تصريح عيادة': 'eiada',
-    'تصريح العيادة': 'eiada',
+    'تصريح خروج': 'khoroog',
   };
   const cls = map[type] || '';
   return `<span class="ptype ${cls}">${window.__core.esc(type || '-')}</span>`;
+}
+
+function extraDetails(p) {
+  const parts = [];
+  if (p.type === 'تصريح عيادة') {
+    if (p.clinic) parts.push('عيادة: ' + p.clinic);
+    if (p.companion) parts.push('مرافق: ' + p.companion);
+    if (p.supervisor) parts.push('مشرف: ' + p.supervisor);
+  } else if (p.type === 'تصريح سفر') {
+    if (p.returnAt) parts.push('العودة: ' + formatDateTime(p.returnAt));
+  } else if (p.type === 'تصريح خروج') {
+    if (p.exitTime) parts.push('خروج: ' + p.exitTime);
+    if (p.returnTime) parts.push('عودة: ' + p.returnTime);
+  }
+  return parts.join(' — ') || '-';
+}
+
+function formatDateTime(v) {
+  if (!v) return '-';
+  try {
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return v;
+    return d.toLocaleString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch { return v; }
 }
 
 /* ==========================================
@@ -106,9 +126,7 @@ function populateStudentSelect() {
     sel.innerHTML = '<option value="">— لا يوجد طلاب —</option>';
     return;
   }
-  sel.innerHTML = permitsState.students
-    .map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`)
-    .join('');
+  sel.innerHTML = permitsState.students.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
 }
 
 function getFilteredRows() {
@@ -118,10 +136,7 @@ function getFilteredRows() {
     if (filterType && p.type !== filterType) return false;
     if (filterStatus && p.status !== filterStatus) return false;
     if (q) {
-      const hay = [
-        studentName(p.studentId),
-        p.type, p.date, p.details, p.clinic,
-      ].join(' ').toLowerCase();
+      const hay = [studentName(p.studentId), p.type, p.date, p.details, p.clinic, p.companion, p.supervisor, p.exitTime, p.returnTime].join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -144,14 +159,7 @@ function renderTable() {
   const paged = rows.slice(start, start + perPage);
 
   if (paged.length === 0) {
-    const hasFilters = permitsState.ui.search || permitsState.ui.filterType || permitsState.ui.filterStatus;
-    tbody.innerHTML = `<tr><td colspan="8">
-      <div class="empty">
-        <div class="ico">📋</div>
-        <h4>${hasFilters ? 'لا توجد نتائج' : 'لا توجد تصاريح بعد'}</h4>
-        <p>${hasFilters ? 'جرّب تعديل البحث أو الفلاتر' : 'اضغط "إضافة تصريح" للبدء'}</p>
-      </div>
-    </td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="ico">📋</div><h4>لا توجد تصاريح</h4><p>اضغط "إضافة تصريح" للبدء</p></div></td></tr>`;
     return;
   }
 
@@ -164,17 +172,12 @@ function renderTable() {
         <td>${typeBadge(p.type)}</td>
         <td dir="ltr">${esc(p.date || '-')}</td>
         <td dir="ltr">${esc(p.time || '-')}</td>
-        <td>${esc(p.clinic || '-')}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(extraDetails(p))}">${esc(extraDetails(p))}</td>
         <td>${statusChip(status)}</td>
-        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(p.details || '')}">
-          ${esc(p.details || '-')}
-        </td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(p.details || '')}">${esc(p.details || '-')}</td>
         <td class="actions">
-          ${canApprove ? `
-            <button class="btn sm success" data-action="approve" data-id="${p.id}" title="موافقة">✓</button>
-            <button class="btn sm danger" data-action="reject" data-id="${p.id}" title="رفض">✗</button>
-          ` : ''}
-          <button class="btn sm danger" data-action="delete" data-id="${p.id}" title="حذف">🗑️</button>
+          ${canApprove ? `<button class="btn sm success" data-action="approve" data-id="${p.id}">✓</button><button class="btn sm danger" data-action="reject" data-id="${p.id}">✗</button>` : ''}
+          <button class="btn sm danger" data-action="delete" data-id="${p.id}">🗑️</button>
         </td>
       </tr>`;
   }).join('');
@@ -205,9 +208,7 @@ function renderPagination() {
   el.innerHTML = `
     <div class="info">عرض ${start}–${end} من ${total} تصريح</div>
     <div class="controls">
-      <select id="perPageSelect">
-        ${[10,25,50,100].map(n => `<option value="${n}" ${n===perPage?'selected':''}>${n} / صفحة</option>`).join('')}
-      </select>
+      <select id="perPageSelect">${[10,25,50,100].map(n => `<option value="${n}" ${n===perPage?'selected':''}>${n} / صفحة</option>`).join('')}</select>
       <button data-page="prev" ${page<=1?'disabled':''}>‹</button>
       ${pages.map(p => `<button data-page="${p}" class="${p===page?'active':''}">${p}</button>`).join('')}
       <button data-page="next" ${page>=totalPages?'disabled':''}>›</button>
@@ -219,8 +220,7 @@ function renderPagination() {
       if (p === 'prev') permitsState.ui.page = Math.max(1, permitsState.ui.page - 1);
       else if (p === 'next') permitsState.ui.page = Math.min(totalPages, permitsState.ui.page + 1);
       else permitsState.ui.page = Number(p);
-      renderTable();
-      renderPagination();
+      renderTable(); renderPagination();
     });
   });
 
@@ -228,9 +228,33 @@ function renderPagination() {
   if (sel) sel.addEventListener('change', () => {
     permitsState.ui.perPage = Number(sel.value);
     permitsState.ui.page = 1;
-    renderTable();
-    renderPagination();
+    renderTable(); renderPagination();
   });
+}
+
+/* ==========================================
+   Toggle Permit Fields
+   ========================================== */
+function togglePermitFields() {
+  const { $ } = window.__core;
+  const type = $('pType')?.value || '';
+  const clinicFields = $('clinicFields');
+  const travelFields = $('travelFields');
+  const exitFields = $('exitFields');
+
+  // إخفاء الكل
+  if (clinicFields) clinicFields.style.display = 'none';
+  if (travelFields) travelFields.style.display = 'none';
+  if (exitFields) exitFields.style.display = 'none';
+
+  // إظهار حسب النوع
+  if (type === 'تصريح عيادة' && clinicFields) {
+    clinicFields.style.display = 'grid';
+  } else if (type === 'تصريح سفر' && travelFields) {
+    travelFields.style.display = 'block';
+  } else if (type === 'تصريح خروج' && exitFields) {
+    exitFields.style.display = 'grid';
+  }
 }
 
 /* ==========================================
@@ -250,17 +274,18 @@ function openDrawer(mode = 'add', permit = null) {
     const map = {
       permitId:'id', pStudent:'studentId', pType:'type', pDate:'date',
       pTime:'time', pClinic:'clinic', pReturn:'returnAt', pDetails:'details',
+      pCompanion:'companion', pSupervisor:'supervisor', pExitTime:'exitTime', pReturnTime:'returnTime',
     };
     Object.entries(map).forEach(([a, b]) => {
       const el = $(a);
       if (el) el.value = permit[b] ?? '';
     });
   } else {
-    // افتراضيًا: اليوم
     const today = new Date().toISOString().slice(0, 10);
-    $('pDate').value = today;
+    if ($('pDate')) $('pDate').value = today;
   }
 
+  togglePermitFields();
   drawer.classList.add('open');
   backdrop.classList.add('open');
   document.body.classList.add('drawer-open');
@@ -279,24 +304,29 @@ function closeDrawer() {
    ========================================== */
 async function savePermit() {
   const { $, val, actionOverlay, toast, apiPost } = window.__core;
+  const type = val('pType');
+
   const payload = {
     studentId: val('pStudent'),
-    type: val('pType'),
+    type: type,
     date: val('pDate'),
     time: val('pTime') || null,
-    clinic: val('pClinic') || null,
-    returnAt: val('pReturn') || null,
     details: val('pDetails') || null,
   };
 
-  if (!payload.studentId) {
-    toast('الرجاء اختيار الطالب', 'error');
-    return;
+  if (type === 'تصريح عيادة') {
+    payload.clinic = val('pClinic') || null;
+    payload.companion = val('pCompanion') || null;
+    payload.supervisor = val('pSupervisor') || null;
+  } else if (type === 'تصريح سفر') {
+    payload.returnAt = val('pReturn') || null;
+  } else if (type === 'تصريح خروج') {
+    payload.exitTime = val('pExitTime') || null;
+    payload.returnTime = val('pReturnTime') || null;
   }
-  if (!payload.date) {
-    toast('الرجاء تحديد التاريخ', 'error');
-    return;
-  }
+
+  if (!payload.studentId) { toast('الرجاء اختيار الطالب', 'error'); return; }
+  if (!payload.date) { toast('الرجاء تحديد التاريخ', 'error'); return; }
 
   actionOverlay.show('جارٍ حفظ التصريح...');
   try {
@@ -320,10 +350,7 @@ async function approvePermit(id) {
   const p = permitsState.permits.find(x => x.id === id);
   if (!p) return;
 
-  const ok = await confirmModal(
-    'تأكيد الموافقة',
-    `الموافقة على تصريح "${p.type}" للطالب "${studentName(p.studentId)}"؟`
-  );
+  const ok = await confirmModal('تأكيد الموافقة', `الموافقة على تصريح "${p.type}" للطالب "${studentName(p.studentId)}"؟`);
   if (!ok) return;
 
   actionOverlay.show('جارٍ الموافقة...');
@@ -345,10 +372,7 @@ async function rejectPermit(id) {
   const p = permitsState.permits.find(x => x.id === id);
   if (!p) return;
 
-  const ok = await confirmModal(
-    'تأكيد الرفض',
-    `رفض تصريح "${p.type}" للطالب "${studentName(p.studentId)}"؟`
-  );
+  const ok = await confirmModal('تأكيد الرفض', `رفض تصريح "${p.type}" للطالب "${studentName(p.studentId)}"؟`);
   if (!ok) return;
 
   actionOverlay.show('جارٍ الرفض...');
@@ -373,10 +397,7 @@ async function deletePermit(id) {
   const p = permitsState.permits.find(x => x.id === id);
   if (!p) return;
 
-  const ok = await confirmModal(
-    'تأكيد الحذف',
-    `حذف التصريح "${p.type}" للطالب "${studentName(p.studentId)}"؟ لا يمكن التراجع.`
-  );
+  const ok = await confirmModal('تأكيد الحذف', `حذف التصريح "${p.type}" للطالب "${studentName(p.studentId)}"؟ لا يمكن التراجع.`);
   if (!ok) return;
 
   actionOverlay.show('جارٍ الحذف...');
@@ -412,9 +433,10 @@ document.addEventListener('DOMContentLoaded', () => {
   $('cancelPermitDrawer')?.addEventListener('click', (e) => { e.preventDefault(); closeDrawer(); });
   $('permitDrawerBackdrop')?.addEventListener('click', closeDrawer);
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeDrawer();
-  });
+  // تبديل الحقول عند تغيير النوع
+  $('pType')?.addEventListener('change', togglePermitFields);
+
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 
   $('savePermitBtn')?.addEventListener('click', (e) => { e.preventDefault(); savePermit(); });
   $('permitForm')?.addEventListener('submit', (e) => { e.preventDefault(); savePermit(); });
@@ -422,22 +444,19 @@ document.addEventListener('DOMContentLoaded', () => {
   $('permitSearch')?.addEventListener('input', (e) => {
     permitsState.ui.search = e.target.value;
     permitsState.ui.page = 1;
-    renderTable();
-    renderPagination();
+    renderTable(); renderPagination();
   });
 
   $('filterType')?.addEventListener('change', (e) => {
     permitsState.ui.filterType = e.target.value;
     permitsState.ui.page = 1;
-    renderTable();
-    renderPagination();
+    renderTable(); renderPagination();
   });
 
   $('filterStatus')?.addEventListener('change', (e) => {
     permitsState.ui.filterStatus = e.target.value;
     permitsState.ui.page = 1;
-    renderTable();
-    renderPagination();
+    renderTable(); renderPagination();
   });
 
   document.querySelectorAll('#permitsTable th[data-sort]').forEach(th => {
@@ -446,9 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const ui = permitsState.ui;
       if (ui.sort.field === field) ui.sort.dir = -ui.sort.dir;
       else { ui.sort.field = field; ui.sort.dir = 1; }
-      document.querySelectorAll('#permitsTable th[data-sort]').forEach(t => {
-        t.classList.remove('asc', 'desc');
-      });
+      document.querySelectorAll('#permitsTable th[data-sort]').forEach(t => t.classList.remove('asc', 'desc'));
       th.classList.add(ui.sort.dir === 1 ? 'asc' : 'desc');
       renderTable();
     });
