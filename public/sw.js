@@ -3,7 +3,7 @@
    v2.0.0 — Auto-versioned + Safe updates
    ========================================== */
 
-const CACHE_VERSION = 'v2.0.0'; // 👈 غيّر ده كل مرة تعدّل ملف
+const CACHE_VERSION = 'v3.0.0'; // 👈 غيّر ده كل مرة تعدّل ملف
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 
