@@ -1,5 +1,5 @@
 /* ==========================================
-   PWA Registration & Update Manager
+   PWA Registration & Update Manager — v2
    ========================================== */
 
 (function () {
@@ -10,46 +10,74 @@
     return;
   }
 
-  // 1) تسجيل Service Worker
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js', { scope: '/' })
-      .then(registration => {
-        console.log('[PWA] ✅ Service Worker مسجل:', registration.scope);
-
-        // 2) اكتشاف تحديث
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (!newWorker) return;
-
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // نسخة جديدة جاهزة — اعرض إشعار
-              showUpdateToast(newWorker);
-            }
-          });
-        });
-      })
-      .catch(err => {
-        console.error('[PWA] ❌ فشل التسجيل:', err);
+  // ==========================================
+  // 1) تسجيل Service Worker (بدون HTTP cache)
+  // ==========================================
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none' // 👈 مهم جداً: لا تخزّن sw.js في HTTP cache
       });
+
+      console.log('[PWA] ✅ Service Worker مسجل:', registration.scope);
+
+      // فحص التحديث فوراً
+      registration.update().catch(() => {});
+
+      // 2) اكتشاف تحديث
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (!newWorker) return;
+
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateToast(newWorker);
+          }
+        });
+      });
+
+      // فحص التحديث كل 60 ثانية (لو الصفحة مفتوحة)
+      setInterval(() => registration.update().catch(() => {}), 60 * 1000);
+
+      // فحص التحديث عند رجوع المستخدم للصفحة
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          registration.update().catch(() => {});
+        }
+      });
+
+    } catch (err) {
+      console.error('[PWA] ❌ فشل التسجيل:', err);
+    }
   });
 
+  // ==========================================
   // 3) عند التحكم بعد التحديث — أعد التحميل مرة واحدة
+  // ==========================================
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (refreshing) return;
     refreshing = true;
+    // لو فيه drawer/modal مفتوح، متعملش reload فجائي
+    const hasOpenUI = document.querySelector('.drawer.open, .modal-bd.open, .overlay.open');
+    if (hasOpenUI) {
+      if (window.__core?.toast) {
+        window.__core.toast('تحديث جاهز. أغلق النوافذ ثم أعد التحميل.', 'info');
+      }
+      return;
+    }
     window.location.reload();
   });
 
+  // ==========================================
   // 4) إشعار التحديث
+  // ==========================================
   function showUpdateToast(worker) {
-    // جرّب استخدام toast من core.js إن كان متاحًا
     if (window.__core?.toast) {
       window.__core.toast('تحديث جديد متاح. جارٍ التطبيق...', 'info');
     }
 
-    // عرض شريط بسيط
     const bar = document.createElement('div');
     bar.style.cssText = `
       position: fixed;
@@ -69,6 +97,7 @@
       font-family: 'Cairo', Tahoma, sans-serif;
       font-size: 14px;
       font-weight: 600;
+      max-width: 92vw;
     `;
     bar.innerHTML = `
       <span>🎉 تحديث جديد متاح</span>
@@ -104,14 +133,15 @@
     });
   }
 
+  // ==========================================
   // 5) إشعار "قابل للتثبيت"
+  // ==========================================
   let deferredPrompt = null;
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 
-    // اعرض زر "تثبيت" صغير بعد 5 ثوان
     setTimeout(() => {
       showInstallBanner();
     }, 5000);
@@ -189,7 +219,9 @@
     });
   }
 
+  // ==========================================
   // 6) مراقبة حالة الاتصال
+  // ==========================================
   window.addEventListener('offline', () => {
     if (window.__core?.toast) {
       window.__core.toast('انقطع الاتصال بالإنترنت', 'error');
