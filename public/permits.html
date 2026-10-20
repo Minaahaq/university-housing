@@ -2,7 +2,6 @@
 <html lang="ar" dir="rtl">
 
 <head>
-  <!-- PWA -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#635bff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -38,11 +37,11 @@
             id="navRoomsBadge">0</span></a>
         <a href="/workers.html" class="nav-link"><span class="ico">🧹</span><span>العمال</span><span class="badge"
             id="navWorkersBadge">0</span></a>
-        <a href="/permits.html" class="nav-link"><span class="ico">📋</span><span>التصاريح</span><span class="badge"
-            id="navPermitsBadge">0</span></a>
+        <a href="/permits.html" class="nav-link active"><span class="ico">📋</span><span>التصاريح</span><span
+            class="badge" id="navPermitsBadge">0</span></a>
         <a href="/payments.html" class="nav-link"><span class="ico">💵</span><span>المدفوعات</span><span class="badge"
             id="navPaymentsBadge">0</span></a>
-        <a href="/reports.html" class="nav-link active"><span class="ico">📈</span><span>التقارير</span></a>
+        <a href="/reports.html" class="nav-link"><span class="ico">📈</span><span>التقارير</span></a>
         <a href="/employees.html" class="nav-link"><span class="ico">👤</span><span>الموظفون</span></a>
         <a href="/audit.html" class="nav-link"><span class="ico">📋</span><span>سجل النشاط</span></a>
         <a href="/settings.html" class="nav-link"><span class="ico">⚙️</span><span>الإعدادات</span></a>
@@ -63,11 +62,10 @@
       </header>
 
       <main class="content" id="app" hidden>
-
         <div class="page-head">
           <div class="titles">
             <h1>التصاريح</h1>
-            <p>إدارة تصاريح المبيت والسفر والعيادة</p>
+            <p>إدارة تصاريح المبيت والسفر والعيادة والخروج</p>
           </div>
           <div class="actions">
             <button class="btn primary" id="addPermitBtn" type="button">➕ إضافة تصريح</button>
@@ -86,6 +84,7 @@
                 <option>تصريح مبيت</option>
                 <option>تصريح سفر</option>
                 <option>تصريح عيادة</option>
+                <option>تصريح خروج</option>
               </select>
               <select id="filterStatus">
                 <option value="">كل الحالات</option>
@@ -105,16 +104,15 @@
                     <th>النوع</th>
                     <th data-sort="date">التاريخ<span class="sort-ind">↕</span></th>
                     <th>الوقت</th>
-                    <th>العيادة</th>
+                    <th>التفاصيل الإضافية</th>
                     <th data-sort="status">الحالة<span class="sort-ind">↕</span></th>
-                    <th>التفاصيل</th>
+                    <th>ملاحظات</th>
                     <th>إجراءات</th>
                   </tr>
                 </thead>
                 <tbody id="permitRows"></tbody>
               </table>
             </div>
-
             <div class="pagination" id="permitsPagination"></div>
           </div>
         </div>
@@ -124,43 +122,50 @@
 
   <!-- Drawer -->
   <div class="drawer-backdrop" id="permitDrawerBackdrop"></div>
-  <div class="drawer" id="permitDrawer" role="dialog" aria-modal="true" aria-labelledby="permitDrawerTitle">
+  <div class="drawer" id="permitDrawer" role="dialog" aria-modal="true">
     <header>
       <h3 id="permitDrawerTitle">إضافة تصريح</h3>
-      <button class="close" id="closePermitDrawer" type="button" aria-label="إغلاق">✕</button>
+      <button class="close" id="closePermitDrawer" type="button">✕</button>
     </header>
     <form id="permitForm">
       <input type="hidden" id="permitId" />
       <div class="form-grid">
-        <label class="wide">الطالب *
-          <select id="pStudent" required></select>
-        </label>
+        <label class="wide">الطالب *<select id="pStudent" required></select></label>
 
         <label>نوع التصريح
           <select id="pType">
             <option>تصريح مبيت</option>
             <option>تصريح سفر</option>
             <option>تصريح عيادة</option>
+            <option>تصريح خروج</option>
           </select>
         </label>
-        <label>التاريخ *
-          <input id="pDate" type="date" required />
-        </label>
+        <label>التاريخ *<input id="pDate" type="date" required /></label>
+        <label>الوقت<input id="pTime" type="time" /></label>
 
-        <label>الوقت
-          <input id="pTime" type="time" />
-        </label>
-        <label>نوع العيادة
-          <input id="pClinic" placeholder="مثال: باطنة" />
-        </label>
+        <!-- حقول تصريح العيادة -->
+        <div id="clinicFields"
+          style="display: none; grid-column: 1 / -1; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
+          <label>المرافق<input id="pCompanion" placeholder="اسم المرافق..." /></label>
+          <label>المشرف<input id="pSupervisor" placeholder="اسم المشرف..." /></label>
+          <label class="wide" style="grid-column: 1 / -1;">نوع العيادة<input id="pClinic"
+              placeholder="مثال: باطنة" /></label>
+        </div>
 
-        <label class="wide">موعد العودة المتوقع
-          <input id="pReturn" type="datetime-local" />
-        </label>
+        <!-- حقول تصريح السفر -->
+        <div id="travelFields" style="display: none; grid-column: 1 / -1; margin-top: 10px;">
+          <label class="wide">تاريخ ووقت العودة المتوقع<input id="pReturn" type="datetime-local" /></label>
+        </div>
 
-        <label class="wide">التفاصيل / سبب التصريح
-          <textarea id="pDetails" placeholder="سبب التصريح، ملاحظات..."></textarea>
-        </label>
+        <!-- حقول تصريح الخروج -->
+        <div id="exitFields"
+          style="display: none; grid-column: 1 / -1; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
+          <label>وقت الخروج<input id="pExitTime" type="time" /></label>
+          <label>وقت العودة<input id="pReturnTime" type="time" /></label>
+        </div>
+
+        <label class="wide">التفاصيل / سبب التصريح<textarea id="pDetails"
+            placeholder="سبب التصريح، ملاحظات..."></textarea></label>
       </div>
     </form>
     <div class="drawer-actions">
@@ -181,16 +186,11 @@
     <div class="progress">
       <div class="bar" id="loaderBar"></div>
     </div>
-    <div class="error-box" id="loaderErrorBox">
-      <strong>تعذّر التحميل</strong>
-      <div id="loaderErrorMsg" style="margin-top:6px"></div>
-      <button onclick="location.href='/login.html'"
-        style="margin-top:10px;background:#fff;color:#dc2626;border:0;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px">العودة
-        للدخول</button>
+    <div class="error-box" id="loaderErrorBox"><strong>تعذّر التحميل</strong>
+      <div id="loaderErrorMsg"></div>
     </div>
   </div>
 
-  <!-- Overlay -->
   <div class="overlay" id="actionOverlay">
     <div class="card">
       <div class="spinner"></div>
@@ -198,7 +198,6 @@
     </div>
   </div>
 
-  <!-- Modal -->
   <div class="modal-bd" id="modalBd">
     <div class="modal">
       <h3 id="modalTitle">تأكيد</h3>
