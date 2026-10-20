@@ -11,7 +11,10 @@ async function list({ q, limit, offset }) {
   if (q) {
     const needle = q.toLowerCase();
     docs = docs.filter(p =>
-      [p.type, p.date, p.details, p.clinic].join(' ').toLowerCase().includes(needle));
+      [
+        p.type, p.date, p.details, p.clinic,
+        p.companion, p.supervisor, p.exitTime, p.returnTime,
+      ].join(' ').toLowerCase().includes(needle));
   }
   docs.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
   const total = docs.length;
@@ -35,7 +38,11 @@ async function create(input, actor) {
     date: input.date,
     time: input.time || null,
     clinic: input.clinic || null,
+    companion: input.companion || null,
+    supervisor: input.supervisor || null,
     returnAt: input.returnAt || null,
+    exitTime: input.exitTime || null,
+    returnTime: input.returnTime || null,
     details: input.details || null,
     status: 'قيد المراجعة',
     createdBy: actor?.uid || null,
