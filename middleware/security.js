@@ -17,7 +17,7 @@ const helmetMiddleware = helmet({
         'https://www.gstatic.com',
         'https://apis.google.com',
         'https://cdn.jsdelivr.net',
-        "'unsafe-inline'", // مطلوب مبدئيًا لـ Firebase Client SDK — يمكن تشديده لاحقًا
+        "'unsafe-inline'",
       ],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
@@ -39,12 +39,16 @@ const helmetMiddleware = helmet({
 
 /**
  * Rate limiter عام لكل الـ API.
+ * validate: { xForwardedForHeader: false } — لمنع خطأ Vercel 500
  */
 const apiLimiter = rateLimit({
   windowMs: env.rateLimit.windowMs,
   max: env.rateLimit.max,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: {
+    xForwardedForHeader: false, // 👈 الحل
+  },
   message: {
     success: false,
     message: 'عدد الطلبات كبير جدًا. حاول لاحقًا.',
@@ -59,6 +63,9 @@ const authLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: {
+    xForwardedForHeader: false, // 👈 الحل
+  },
   message: {
     success: false,
     message: 'محاولات دخول كثيرة. حاول بعد 15 دقيقة.',
@@ -70,7 +77,6 @@ const authLimiter = rateLimit({
  */
 const corsMiddleware = cors({
   origin(origin, callback) {
-    // السماح بالطلبات بدون Origin (مثل curl / Postman في التطوير)
     if (!origin) return callback(null, true);
     if (env.cors.allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error('CORS: الأصل غير مسموح'));
