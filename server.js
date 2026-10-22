@@ -23,6 +23,7 @@ const permitRoutes = require('./routes/permit.routes');
 const paymentRoutes = require('./routes/payment.routes');
 
 const app = express();
+app.set('trust proxy', 1);
 app.disable('x-powered-by');
 
 app.use(helmetMiddleware);
