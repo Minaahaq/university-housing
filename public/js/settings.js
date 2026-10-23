@@ -86,7 +86,7 @@ function renderProfile(profile) {
 }
 
 /* ==========================================
-   Tabs (nav)
+   Tabs (nav) + Events
    ========================================== */
 document.addEventListener('DOMContentLoaded', () => {
   const { $ } = window.__core;
@@ -204,5 +204,130 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       toast(err.message || 'فشل تسجيل الخروج', 'error');
     }
+  });
+
+  // ============ Backup & Export ============
+
+  // دالة مساعدة لتنزيل ملف
+  function downloadFile(content, filename, type) {
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(new Blob([content], { type }));
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  // 1. النسخة الشاملة (JSON)
+  $('backupJsonBtn')?.addEventListener('click', async () => {
+    const { actionOverlay, toast } = window.__core;
+    actionOverlay.show('جارٍ تجميع البيانات...');
+    try {
+      const token = await fbClient.getIdToken();
+      
+      // بنجيب كل البيانات من الـ APIs بالتوازي
+      const [students, workers, payments, permits, rooms, buildings, employees, auditLogs] = await Promise.all([
+        fetch('/api/students?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch('/api/workers?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch('/api/payments?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch('/api/permits?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch('/api/rooms/rooms', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch('/api/rooms/buildings', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch('/api/employees?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch('/api/audit-logs?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+      ]);
+
+      const backupData = {
+        exportedAt: new Date().toISOString(),
+        system: 'University Housing System',
+        data: {
+          students: students.data || [],
+          workers: workers.data || [],
+          payments: payments.data || [],
+          permits: permits.data || [],
+          rooms: rooms.data || [],
+          buildings: buildings.data || [],
+          employees: employees.data || [],
+          auditLogs: auditLogs.data || [],
+        }
+      };
+
+      downloadFile(
+        JSON.stringify(backupData, null, 2),
+        `نسخة-سكن-الجامعة-${new Date().toISOString().slice(0, 10)}.json`,
+        'application/json;charset=utf-8'
+      );
+      toast('تم تحميل النسخة الشاملة', 'success');
+    } catch (err) {
+      toast('فشل إنشاء النسخة: ' + err.message, 'error');
+    } finally {
+      actionOverlay.hide();
+    }
+  });
+
+  // 2. تصدير CSV لكل جدول
+  document.querySelectorAll('[data-export]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const type = btn.dataset.export;
+      const { actionOverlay, toast } = window.__core;
+      const token = await fbClient.getIdToken();
+      actionOverlay.show('جارٍ تجهيز الملف...');
+
+      try {
+        let data = [];
+        let headers = [];
+        let filename = '';
+
+        if (type === 'students') {
+          const res = await fetch('/api/students?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json());
+          data = res.data || [];
+          headers = ['الاسم', 'الرقم القومي', 'الهاتف', 'الكلية', 'الفرقة', 'الغرفة', 'الحالة'];
+          filename = 'الطلاب';
+        } 
+        else if (type === 'workers') {
+          const res = await fetch('/api/workers?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json());
+          data = res.data || [];
+          headers = ['الاسم', 'المهمة', 'الهاتف', 'المستحق', 'المدفوع'];
+          filename = 'العمال';
+        }
+        else if (type === 'payments') {
+          const res = await fetch('/api/payments?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json());
+          data = res.data || [];
+          headers = ['الطالب', 'الشهر', 'المطلوب', 'المدفوع', 'التاريخ'];
+          filename = 'المدفوعات';
+        }
+        else if (type === 'permits') {
+          const res = await fetch('/api/permits?limit=5000', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json());
+          data = res.data || [];
+          headers = ['الطالب', 'النوع', 'التاريخ', 'الحالة'];
+          filename = 'التصاريح';
+        }
+        else if (type === 'rooms') {
+          const res = await fetch('/api/rooms/rooms', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json());
+          data = res.data || [];
+          headers = ['الغرفة', 'المبنى', 'الجناح', 'السعة', 'المقيمون', 'الحالة'];
+          filename = 'الغرف';
+        }
+
+        // تجهيز CSV
+        const rows = [headers];
+        data.forEach(item => {
+          if (type === 'students') rows.push([item.name, item.national, item.phone, item.college, item.year, item.room, item.status]);
+          else if (type === 'workers') rows.push([item.name, item.job, item.phone, item.due, item.paid]);
+          else if (type === 'payments') rows.push([item.studentId, item.month, item.due, item.paid, item.date]);
+          else if (type === 'permits') rows.push([item.studentId, item.type, item.date, item.status]);
+          else if (type === 'rooms') rows.push([item.roomNumber, item.buildingName, item.wing, item.capacity, item.occupantCount, item.status]);
+        });
+
+        const csvContent = '\ufeff' + rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+        
+        downloadFile(csvContent, `${filename}-${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv;charset=utf-8');
+        toast(`تم تصدير ${filename}`, 'success');
+      } catch (err) {
+        toast('فشل التصدير: ' + err.message, 'error');
+      } finally {
+        actionOverlay.hide();
+      }
+    });
   });
 });
