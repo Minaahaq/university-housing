@@ -1,32 +1,199 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#635bff" />
+  <title>سكن الجامعة — نظام الإدارة</title>
+
+  <link rel="manifest" href="/manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="سكن الجامعة" />
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>سكن الجامعة</title>
-  <link rel="stylesheet" href="/css/style.css" />
-</head>
 
-<body class="auth-page">
-  <main class="auth-card" style="text-align:center">
-    <h1>سكن الجامعة</h1>
-    <p class="subtitle">نظام إدارة سكن الجامعة</p>
-    <a href="/login.html"
-      style="display:inline-block;margin-top:12px;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
-      الدخول إلى النظام
-    </a>
-  </main>
+  <link rel="stylesheet" href="/css/app.css" />
+  
+  <style>
+    /* تنسيقات خاصة بصفحة الترحيب */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top right, rgba(99, 91, 255, 0.15), transparent 50%),
+                  radial-gradient(circle at bottom left, rgba(96, 165, 250, 0.1), transparent 50%),
+                  #0a0a0a;
+      color: #ededed;
+      font-family: 'Cairo', -apple-system, Tahoma, sans-serif;
+      overflow: hidden;
+    }
+
+    .landing-container {
+      max-width: 600px;
+      padding: 40px 24px;
+      text-align: center;
+      z-index: 10;
+      animation: fadeUp 0.8s ease-out forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .landing-logo {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, #635bff, #8b82ff);
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      font-size: 44px;
+      margin: 0 auto 24px;
+      box-shadow: 0 12px 32px rgba(99, 91, 255, 0.4);
+    }
+
+    .landing-title {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      margin: 0 0 16px;
+      letter-spacing: -1px;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #fff, #a1a1aa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .landing-subtitle {
+      font-size: 16px;
+      color: #a1a1aa;
+      line-height: 1.7;
+      margin: 0 0 40px;
+      max-width: 450px;
+      margin-inline: auto;
+    }
+
+    .landing-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-landing {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: #000;
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.25);
+      background: #f5f5f5;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ededed;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .footer-note {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #52525b;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="landing-container">
+    <!-- الشعار -->
+    <div class="landing-logo">🏠</div>
+
+    <!-- العنوان -->
+    <h1 class="landing-title">سكن الجامعة</h1>
+    <p class="landing-subtitle">
+      النظام المتكامل لإدارة السكن الجامعي، الطلاب، الغرف، المدفوعات، والتصاريح بكل سهولة واحترافية.
+    </p>
+
+    <!-- الأزرار -->
+    <div class="landing-actions">
+      <!-- زر تسجيل الدخول (يظهر دائمًا كخيار أساسي) -->
+      <a href="/login.html" class="btn-landing btn-primary" id="loginBtn">
+        🔑 تسجيل الدخول
+      </a>
+      
+      <!-- زر لوحة التحكم (يظهر فقط لو المستخدم مسجل دخول) -->
+      <a href="/dashboard.html" class="btn-landing btn-secondary hidden" id="dashboardBtn">
+        📊 الدخول إلى لوحة التحكم
+      </a>
+    </div>
+
+    <!-- تذييل -->
+    <div class="footer-note">
+      © 2026 سكن الجامعة — جميع الحقوق محفوظة.
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="/js/firebase-client.js"></script>
+  <script>
+    // التحقق من حالة الدخول لإظهار/إخفاء زر لوحة التحكم
+    (function () {
+      if (window.firebase && window.firebase.auth) {
+        window.firebase.auth().onAuthStateChanged((user) => {
+          const loginBtn = document.getElementById('loginBtn');
+          const dashboardBtn = document.getElementById('dashboardBtn');
+          
+          if (user) {
+            // مسجل دخول: نخفي زر تسجيل الدخول ونظهر زر لوحة التحكم
+            loginBtn.classList.add('hidden');
+            dashboardBtn.classList.remove('hidden');
+          } else {
+            // غير مسجل: نضمن ظهور زر تسجيل الدخول
+            loginBtn.classList.remove('hidden');
+            dashboardBtn.classList.add('hidden');
+          }
+        });
+      }
+    })();
+  </script>
+
+  <!-- PWA -->
   <script src="/js/pwa.js"></script>
 </body>
-
 </html>
