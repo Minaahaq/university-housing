@@ -14,6 +14,7 @@ const roomsState = {
     search: '',
     building: '',
     status: '',
+    sort: 'roomNumber-asc', // 👈 الترتيب الافتراضي
   },
   currentRoom: null,
 };
@@ -138,10 +139,10 @@ function renderBuildingChips() {
 }
 
 function getFilteredRooms() {
-  const { search, building, status } = roomsState.ui;
+  const { search, building, status, sort } = roomsState.ui;
   const q = search.toLowerCase();
 
-  return roomsState.rooms.filter(r => {
+  let rooms = roomsState.rooms.filter(r => {
     if (building && r.buildingId !== building) return false;
     if (status && r.status !== status) return false;
     if (q) {
@@ -150,6 +151,30 @@ function getFilteredRooms() {
     }
     return true;
   });
+
+  // تطبيق الترتيب
+  if (sort) {
+    const [field, dir] = sort.split('-');
+    rooms.sort((a, b) => {
+      let valA = a[field];
+      let valB = b[field];
+
+      // تحويل القيم الرقمية
+      if (field === 'roomNumber' || field === 'capacity') {
+        valA = Number(valA) || 0;
+        valB = Number(valB) || 0;
+      } else {
+        valA = String(valA || '').toLowerCase();
+        valB = String(valB || '').toLowerCase();
+      }
+
+      if (valA < valB) return dir === 'asc' ? -1 : 1;
+      if (valA > valB) return dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  return rooms;
 }
 
 function renderFloorPlan() {
@@ -547,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderAll();
       toast('تم تحديث البيانات', 'success');
     } catch (err) {
-      toast(err.message || 'فشل التحديث', 'error');
+        toast(err.message || 'فشل التحديث', 'error');
     }
   });
 
@@ -596,5 +621,11 @@ document.addEventListener('DOMContentLoaded', () => {
       roomsState.ui.status = btn.dataset.status || '';
       renderFloorPlan();
     });
+  });
+
+  // الترتيب
+  $('sortRooms')?.addEventListener('change', (e) => {
+    roomsState.ui.sort = e.target.value;
+    renderFloorPlan();
   });
 });
