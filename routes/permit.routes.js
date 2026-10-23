@@ -11,7 +11,7 @@ const guard = requirePermission('permits.manage');
 
 const createRules = [
   body('studentId').isString().notEmpty().withMessage('الطالب مطلوب'),
-  body('type').isIn(['تصريح مبيت', 'تصريح سفر', 'تصريح خروج', 'تصريح العيادة']).withMessage('نوع غير صالح'),
+  body('type').isIn(['تصريح مبيت', 'تصريح سفر', 'تصريح خروج', 'تصريح عيادة']).withMessage('نوع غير صالح'),
   body('date').isISO8601().withMessage('التاريخ غير صالح'),
 ];
 
