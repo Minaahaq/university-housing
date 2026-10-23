@@ -117,7 +117,7 @@
           </div>
         </div>
 
-        <!-- ============ FILTERS ============ -->
+        <!-- ============ FILTERS + SORT ============ -->
         <div class="filters-bar">
           <div class="filter-search">
             <span class="search-icon">🔍</span>
@@ -132,6 +132,16 @@
             <button class="toggle-btn" data-status="مشغولة">مشغولة</button>
             <button class="toggle-btn" data-status="صيانة">صيانة</button>
           </div>
+          
+          <!-- الترتيب -->
+          <select id="sortRooms" style="background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: inherit; font-size: 13px; cursor: pointer; min-width: 140px;">
+            <option value="roomNumber-asc">رقم الغرفة (تصاعدي)</option>
+            <option value="roomNumber-desc">رقم الغرفة (تنازلي)</option>
+            <option value="buildingName-asc">المبنى (أبجدي)</option>
+            <option value="capacity-asc">السعة (أقل أولاً)</option>
+            <option value="capacity-desc">السعة (أكثر أولاً)</option>
+          </select>
+
         </div>
 
         <!-- ============ FLOOR PLAN ============ -->
