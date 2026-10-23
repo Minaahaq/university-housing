@@ -323,3 +323,32 @@
     padding: 16px 18px
   }
 }
+
+/* تنسيق قسم النسخ الاحتياطي */
+.backup-section {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+.backup-section:last-child {
+  border-bottom: none;
+}
+.backup-section h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--text);
+}
+.backup-section .muted {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.export-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.export-buttons .btn {
+  flex: 1;
+  min-width: 140px;
+  justify-content: center;
+}
