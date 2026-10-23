@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#635bff" />
-  <title>سكن الجامعة — نظام الإدارة</title>
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>سكن الجامعة — نظام الإدارة المتكامل</title>
 
   <link rel="manifest" href="/manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -12,122 +12,306 @@
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
 
+  <!-- استدعاء خط Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="/css/app.css" />
   
   <style>
-    /* تنسيقات خاصة بصفحة الترحيب */
+    :root {
+      --bg: #09090b;
+      --surface: #18181b;
+      --border: #27272a;
+      --primary: #635bff;
+      --primary-light: #8b82ff;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+    }
+
     body {
       margin: 0;
+      padding: 0;
       min-height: 100vh;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Cairo', sans-serif;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top right, rgba(99, 91, 255, 0.15), transparent 50%),
-                  radial-gradient(circle at bottom left, rgba(96, 165, 250, 0.1), transparent 50%),
-                  #0a0a0a;
-      color: #ededed;
-      font-family: 'Cairo', -apple-system, Tahoma, sans-serif;
       overflow: hidden;
     }
 
-    .landing-container {
-      max-width: 600px;
-      padding: 40px 24px;
-      text-align: center;
+    /* ============ BACKGROUND EFFECTS ============ */
+    .ambient-light {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: 0;
+      opacity: 0.4;
+    }
+    .light-1 {
+      width: 600px; height: 600px;
+      background: #635bff;
+      top: -200px; right: -100px;
+      animation: float 10s ease-in-out infinite alternate;
+    }
+    .light-2 {
+      width: 500px; height: 500px;
+      background: #3b82f6;
+      bottom: -200px; left: -100px;
+      animation: float 12s ease-in-out infinite alternate-reverse;
+    }
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-50px, 50px); }
+    }
+
+    /* ============ LAYOUT ============ */
+    .landing-wrapper {
+      position: relative;
       z-index: 10;
-      animation: fadeUp 0.8s ease-out forwards;
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    .landing-logo {
-      width: 90px;
-      height: 90px;
-      background: linear-gradient(135deg, #635bff, #8b82ff);
-      border-radius: 24px;
       display: grid;
-      place-items: center;
-      font-size: 44px;
-      margin: 0 auto 24px;
-      box-shadow: 0 12px 32px rgba(99, 91, 255, 0.4);
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: 100vh;
     }
 
-    .landing-title {
-      font-size: clamp(32px, 5vw, 48px);
-      font-weight: 800;
-      margin: 0 0 16px;
-      letter-spacing: -1px;
-      line-height: 1.2;
-      background: linear-gradient(135deg, #fff, #a1a1aa);
+    /* ============ RIGHT SIDE (Hero Text) ============ */
+    .hero-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px;
+      animation: slideInRight 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateX(40px);
+    }
+
+    @keyframes slideInRight {
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99, 91, 255, 0.1);
+      border: 1px solid rgba(99, 91, 255, 0.2);
+      color: var(--primary-light);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      width: fit-content;
+      margin-bottom: 24px;
+    }
+    .brand-badge span {
+      width: 8px; height: 8px;
+      background: var(--primary-light);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--primary-light);
+      animation: pulse 2s infinite;
+    }
+
+    .hero-title {
+      font-size: clamp(40px, 5vw, 64px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin: 0 0 24px;
+      letter-spacing: -1.5px;
+      background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-title span {
+      background: linear-gradient(135deg, #635bff 0%, #3b82f6 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .landing-subtitle {
-      font-size: 16px;
-      color: #a1a1aa;
-      line-height: 1.7;
+    .hero-subtitle {
+      font-size: 18px;
+      line-height: 1.8;
+      color: var(--text-muted);
       margin: 0 0 40px;
-      max-width: 450px;
-      margin-inline: auto;
+      max-width: 500px;
     }
 
-    .landing-actions {
+    /* Features List */
+    .features-list {
       display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
       gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
+      font-size: 15px;
+      font-weight: 600;
+      color: #d4d4d8;
+    }
+    .feature-icon {
+      width: 24px; height: 24px;
+      background: rgba(99, 91, 255, 0.1);
+      border: 1px solid rgba(99, 91, 255, 0.3);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--primary-light);
+      font-size: 12px;
     }
 
-    .btn-landing {
-      display: inline-flex;
+    /* ============ LEFT SIDE (Auth Card) ============ */
+    .auth-section {
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 14px 28px;
-      border-radius: 12px;
-      font-size: 15px;
+      padding: 40px;
+    }
+
+    .auth-card {
+      background: rgba(24, 24, 27, 0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 32px;
+      padding: 48px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      animation: slideInLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateX(-40px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes slideInLeft {
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99, 91, 255, 0.5), transparent);
+    }
+
+    .card-logo {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #635bff, #8b82ff);
+      border-radius: 20px;
+      display: grid;
+      place-items: center;
+      font-size: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(99, 91, 255, 0.3);
+    }
+
+    .card-title {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+    .card-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 0 0 32px;
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-auth {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 16px;
       font-weight: 700;
       text-decoration: none;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
+      box-sizing: border-box;
     }
 
-    .btn-primary {
-      background: #fff;
-      color: #000;
-      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15);
+    .btn-login {
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+      border: 1px solid #ffffff;
     }
-
-    .btn-primary:hover {
+    .btn-login:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.25);
-      background: #f5f5f5;
+      box-shadow: 0 8px 30px rgba(255, 255, 255, 0.25);
+      background: #f4f4f5;
     }
 
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.05);
-      color: #ededed;
+    .btn-dashboard {
+      background: linear-gradient(135deg, #635bff, #8b82ff);
+      color: #ffffff;
+      box-shadow: 0 4px 20px rgba(99, 91, 255, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
+    .btn-dashboard:hover {
       transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(99, 91, 255, 0.5);
     }
 
-    .footer-note {
-      margin-top: 40px;
-      font-size: 12px;
+    .auth-footer {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+      font-size: 13px;
       color: #52525b;
     }
 
-    /* Animations */
-    @keyframes fadeUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 1024px) {
+      .landing-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .hero-section {
+        display: none; /* نخفي الجزء النصي على الموبايل */
+      }
+      .auth-section {
+        padding: 24px;
+      }
+      body {
+        align-items: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .auth-card {
+        padding: 32px 24px;
+        border-radius: 24px;
+      }
+      .card-logo {
+        width: 56px; height: 56px;
+        font-size: 28px;
       }
     }
 
@@ -138,33 +322,72 @@
 </head>
 <body>
 
-  <div class="landing-container">
-    <!-- الشعار -->
-    <div class="landing-logo">🏠</div>
+  <!-- Ambient Lights -->
+  <div class="ambient-light light-1"></div>
+  <div class="ambient-light light-2"></div>
+  <div class="noise-overlay"></div>
 
-    <!-- العنوان -->
-    <h1 class="landing-title">سكن الجامعة</h1>
-    <p class="landing-subtitle">
-      النظام المتكامل لإدارة السكن الجامعي، الطلاب، الغرف، المدفوعات، والتصاريح بكل سهولة واحترافية.
-    </p>
-
-    <!-- الأزرار -->
-    <div class="landing-actions">
-      <!-- زر تسجيل الدخول (يظهر دائمًا كخيار أساسي) -->
-      <a href="/login.html" class="btn-landing btn-primary" id="loginBtn">
-        🔑 تسجيل الدخول
-      </a>
+  <div class="landing-wrapper">
+    
+    <!-- RIGHT SIDE (Hero) -->
+    <div class="hero-section">
+      <div class="brand-badge">
+        <span></span> الإصدار 2.0 متاح الآن
+      </div>
       
-      <!-- زر لوحة التحكم (يظهر فقط لو المستخدم مسجل دخول) -->
-      <a href="/dashboard.html" class="btn-landing btn-secondary hidden" id="dashboardBtn">
-        📊 الدخول إلى لوحة التحكم
-      </a>
+      <h1 class="hero-title">
+        إدارة سكنك الجامعي<br>
+        <span>بذكاء واحترافية.</span>
+      </h1>
+      
+      <p class="hero-subtitle">
+        النظام الشامل لإدارة الطلاب، الغرف، المدفوعات، والتصاريح. وفر وقتك، وتجنب الأخطاء اليدوية، واتخذ قرارات مبنية على بيانات حقيقية.
+      </p>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="feature-icon">✓</div> إدارة كاملة للطلاب والغرف
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div> نظام صلاحيات متقدم للموظفين
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div> تقارير ورسوم بيانية فورية
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div> حماية وتشفير بأعلى المعايير
+        </div>
+      </div>
     </div>
 
-    <!-- تذييل -->
-    <div class="footer-note">
-      © 2026 سكن الجامعة — جميع الحقوق محفوظة.
+    <!-- LEFT SIDE (Auth Card) -->
+    <div class="auth-section">
+      <div class="auth-card">
+        <div class="card-logo">🏠</div>
+        
+        <h2 class="card-title">مرحباً بك مجدداً</h2>
+        <p class="card-subtitle">سجل دخولك للوصول إلى لوحة التحكم</p>
+        
+        <div class="btn-group">
+          <!-- زر تسجيل الدخول -->
+          <a href="/login.html" class="btn-auth btn-login" id="loginBtn">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+            تسجيل الدخول
+          </a>
+          
+          <!-- زر لوحة التحكم (يظهر لو مسجل) -->
+          <a href="/dashboard.html" class="btn-auth btn-dashboard hidden" id="dashboardBtn">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            الذهاب إلى لوحة التحكم
+          </a>
+        </div>
+
+        <div class="auth-footer">
+          © 2026 سكن الجامعة. جميع الحقوق محفوظة.
+        </div>
+      </div>
     </div>
+
   </div>
 
   <!-- Firebase SDKs -->
@@ -172,7 +395,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="/js/firebase-client.js"></script>
   <script>
-    // التحقق من حالة الدخول لإظهار/إخفاء زر لوحة التحكم
     (function () {
       if (window.firebase && window.firebase.auth) {
         window.firebase.auth().onAuthStateChanged((user) => {
@@ -180,11 +402,9 @@
           const dashboardBtn = document.getElementById('dashboardBtn');
           
           if (user) {
-            // مسجل دخول: نخفي زر تسجيل الدخول ونظهر زر لوحة التحكم
             loginBtn.classList.add('hidden');
             dashboardBtn.classList.remove('hidden');
           } else {
-            // غير مسجل: نضمن ظهور زر تسجيل الدخول
             loginBtn.classList.remove('hidden');
             dashboardBtn.classList.add('hidden');
           }
@@ -193,7 +413,6 @@
     })();
   </script>
 
-  <!-- PWA -->
   <script src="/js/pwa.js"></script>
 </body>
 </html>
