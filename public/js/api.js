@@ -9,12 +9,22 @@ const CACHE_DURATION = 2 * 60 * 1000; // دقيقتين
 const cache = new Map();
 
 async function request(method, url, body = null, token = null) {
-  // 1) لو الطلب GET، نشوف لو في نسخة مخزنة
+  // 1) لو الطلب مش GET (POST/PUT/DELETE)، نمسح الكاش فورًا قبل أي حاجة
+  if (method !== 'GET') {
+    const baseUrl = url.split('?')[0];
+    for (const key of cache.keys()) {
+      if (key.startsWith(baseUrl)) {
+        cache.delete(key);
+        console.log('🗑️ تم مسح الكاش لـ:', key);
+      }
+    }
+  }
+
+  // 2) لو الطلب GET، نشوف لو في نسخة مخزنة
   if (method === 'GET') {
     const cached = cache.get(url);
     if (cached && (Date.now() - cached.time < CACHE_DURATION)) {
       console.log('⚡ من الكاش:', url);
-      // نرجع رد وهمي شبه الـ fetch عشان الكود التاني ميبوظش
       return {
         ok: true,
         status: 200,
@@ -39,21 +49,11 @@ async function request(method, url, body = null, token = null) {
     }
   }
 
-  // 2) لو الطلب GET ونجح، نخزن الرد في الكاش
+  // 3) لو الطلب GET ونجح، نخزن الرد في الكاش
   if (method === 'GET' && res.ok) {
     const clonedRes = res.clone();
     const data = await clonedRes.json();
     cache.set(url, { data, time: Date.now() });
-  }
-
-  // 3) لو الطلب POST/PUT/DELETE، نمسح الكاش عشان البيانات تتحدث
-  if (method !== 'GET') {
-    const baseUrl = url.split('?')[0]; // نشيل أي query params
-    for (const key of cache.keys()) {
-      if (key.startsWith(baseUrl)) {
-        cache.delete(key);
-      }
-    }
   }
 
   return res;
