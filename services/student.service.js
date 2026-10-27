@@ -34,37 +34,54 @@ async function getStudent(id) {
 }
 
 async function createStudent(input, actor) {
+  // 1. تسجيل بداية المحاولة
+  console.log('⏳ [createStudent] محاولة حفظ طالب جديد:', input.name);
+
   const now = new Date().toISOString();
 
   if (input.national) {
     const dup = await COL.where('national', '==', input.national).limit(1).get();
-    if (!dup.empty) throw ApiError.conflict('الرقم القومي مسجل مسبقًا');
+    if (!dup.empty) {
+      console.error('❌ [createStudent] الرقم القومي مسجل مسبقاً:', input.national);
+      throw ApiError.conflict('الرقم القومي مسجل مسبقًا');
+    }
   }
 
-  const docRef = await COL.add({
-    name: input.name,
-    national: input.national || null,
-    phone: input.phone || null,
-    email: input.email || null,
-    college: input.college || null,
-    year: input.year || null,
-    wing: input.wing || null,
-    floor: input.floor || null,
-    room: input.room || null,
-    roomType: input.roomType || null,
-    status: input.status || 'مقيم',
-    monthly: Number(input.monthly) || 0,
-    notes: input.notes || null,
-    archived: false,
-    createdAt: now,
-    updatedAt: now,
-    createdBy: actor?.uid || null,
-  });
+  try {
+    const docRef = await COL.add({
+      name: input.name,
+      national: input.national || null,
+      phone: input.phone || null,
+      email: input.email || null,
+      college: input.college || null,
+      year: input.year || null,
+      wing: input.wing || null,
+      floor: input.floor || null,
+      room: input.room || null,
+      roomType: input.roomType || null,
+      status: input.status || 'مقيم',
+      monthly: Number(input.monthly) || 0,
+      notes: input.notes || null,
+      archived: false,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: actor?.uid || null,
+    });
 
-  return getStudent(docRef.id);
+    // 2. تسجيل نجاح الحفظ مع الـ ID
+    console.log('✅ [createStudent] تم الحفظ في Firebase بنجاح. ID:', docRef.id);
+
+    return getStudent(docRef.id);
+  } catch (err) {
+    // 3. تسجيل فشل الحفظ
+    console.error('❌ [createStudent] فشل الحفظ في Firebase:', err);
+    throw err;
+  }
 }
 
 async function updateStudent(id, input, actor) {
+  console.log('⏳ [updateStudent] محاولة تحديث طالب:', id);
+
   const doc = await COL.doc(id).get();
   if (!doc.exists) throw ApiError.notFound('الطالب غير موجود');
 
@@ -91,19 +108,36 @@ async function updateStudent(id, input, actor) {
     updatedBy: actor?.uid || null,
   };
 
-  await COL.doc(id).update(patch);
+  try {
+    await COL.doc(id).update(patch);
+    console.log('✅ [updateStudent] تم التحديث بنجاح:', id);
+  } catch (err) {
+    console.error('❌ [updateStudent] فشل التحديث:', err);
+    throw err;
+  }
+
   return getStudent(id);
 }
 
 async function archiveStudent(id, actor) {
+  console.log('⏳ [archiveStudent] محاولة أرشفة طالب:', id);
+
   const doc = await COL.doc(id).get();
   if (!doc.exists) throw ApiError.notFound('الطالب غير موجود');
-  await COL.doc(id).update({
-    archived: true,
-    status: 'منسحب',
-    updatedAt: new Date().toISOString(),
-    updatedBy: actor?.uid || null,
-  });
+
+  try {
+    await COL.doc(id).update({
+      archived: true,
+      status: 'منسحب',
+      updatedAt: new Date().toISOString(),
+      updatedBy: actor?.uid || null,
+    });
+    console.log('✅ [archiveStudent] تمت الأرشفة بنجاح:', id);
+  } catch (err) {
+    console.error('❌ [archiveStudent] فشل الأرشفة:', err);
+    throw err;
+  }
+
   return getStudent(id);
 }
 
