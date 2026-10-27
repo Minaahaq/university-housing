@@ -294,7 +294,7 @@ function closeDrawer() {
    Save
    ========================================== */
 async function saveStudent() {
-  const { $, val, num, actionOverlay, toast, apiPost, apiPut } = window.__core;
+  const { $, val, num, actionOverlay, toast, apiPost, apiPut, loader } = window.__core;
   const id = val('studentId');
 
   const payload = {
@@ -326,13 +326,12 @@ async function saveStudent() {
       ? await apiPost('/api/students', payload)
       : await apiPut(`/api/students/${id}`, payload);
 
-    if (isNew) studentsState.students.push(body.data);
-    else {
-      const i = studentsState.students.findIndex(x => x.id === body.data.id);
-      if (i >= 0) studentsState.students[i] = body.data;
-    }
-
+    // ✅ إعادة تحميل البيانات من السيرفر فوراً
+    loader.show('جارٍ تحديث البيانات...', 50);
+    await loadAll();
     renderAll();
+    loader.hide();
+
     closeDrawer();
     toast(isNew ? 'تم إضافة الطالب بنجاح' : 'تم تحديث البيانات', 'success');
   } catch (err) {
@@ -346,7 +345,7 @@ async function saveStudent() {
    Delete
    ========================================== */
 async function deleteStudent(id) {
-  const { confirmModal, actionOverlay, toast, apiDel } = window.__core;
+  const { confirmModal, actionOverlay, toast, apiDel, loader } = window.__core;
   const s = studentsState.students.find(x => x.id === id);
   if (!s) return;
 
@@ -356,8 +355,13 @@ async function deleteStudent(id) {
   actionOverlay.show('جارٍ الحذف...');
   try {
     await apiDel(`/api/students/${id}`);
-    studentsState.students = studentsState.students.filter(x => x.id !== id);
+    
+    // ✅ إعادة تحميل البيانات من السيرفر فوراً
+    loader.show('جارٍ تحديث البيانات...', 50);
+    await loadAll();
     renderAll();
+    loader.hide();
+    
     toast('تم حذف الطالب', 'success');
   } catch (err) {
     toast(err.message, 'error');
