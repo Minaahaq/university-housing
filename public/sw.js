@@ -1,13 +1,12 @@
 /* ==========================================
    Service Worker — University Housing PWA
-   v2.0.0 — Auto-versioned + Safe updates
+   v3.0.0 — Network First for JS/HTML/CSS
    ========================================== */
 
-const CACHE_VERSION = 'v6.0.0'; // 👈 غيّر ده كل مرة تعدّل ملف
+const CACHE_VERSION = 'v6.0.1'; // 👈 غيّر الرقم ده كل مرة تعدل
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 
-// الملفات التي تُخزَّن عند التثبيت
 const PRECACHE_URLS = [
   '/',
   '/login.html',
@@ -57,7 +56,6 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then(cache => {
-        console.log('[SW] Caching static assets');
         return Promise.allSettled(
           PRECACHE_URLS.map(url =>
             cache.add(url).catch(err => {
@@ -66,12 +64,7 @@ self.addEventListener('install', (event) => {
           )
         );
       })
-      .then(() => {
-        console.log('[SW] Installed. Waiting for activation...');
-        // ملاحظة: مش بنعمل skipWaiting هنا تلقائياً
-        // عشان نسمح للمستخدم يتحكم في وقت التحديث
-        // الـ skipWaiting هيجي من رسالة SKIP_WAITING
-      })
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -88,10 +81,7 @@ self.addEventListener('activate', (event) => {
             return caches.delete(name);
           })
       ))
-      .then(() => {
-        console.log('[SW] Claiming clients...');
-        return self.clients.claim();
-      })
+      .then(() => self.clients.claim())
   );
 });
 
@@ -100,7 +90,6 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // تجاهل طلبات غير GET
   if (request.method !== 'GET') return;
 
   // تجاهل طلبات API و Firebase
@@ -114,10 +103,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // استراتيجية: Network First للـ HTML
-  if (request.headers.get('accept')?.includes('text/html') || request.mode === 'navigate') {
+  // ✅ Network First للـ HTML والـ JS والـ CSS (عشان نضمن أحدث نسخة)
+  if (
+    request.mode === 'navigate' ||
+    request.headers.get('accept')?.includes('text/html') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css')
+  ) {
     event.respondWith(
-      fetch(request, { cache: 'no-store' }) // 👈 تجاهل HTTP cache
+      fetch(request, { cache: 'no-store' })
         .then(response => {
           if (response.ok) {
             const clone = response.clone();
@@ -133,12 +127,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // استراتيجية: Cache First للأصول الثابتة
+  // Cache First للأصول الثابتة (صور، أيقونات، إلخ)
   event.respondWith(
     caches.match(request)
       .then(cached => {
         if (cached) {
-          // تحديث في الخلفية (Stale-While-Revalidate)
           fetch(request).then(response => {
             if (response.ok) {
               caches.open(RUNTIME_CACHE).then(cache => cache.put(request, response));
@@ -160,7 +153,6 @@ self.addEventListener('fetch', (event) => {
 /* ========== Message ========== */
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') {
-    console.log('[SW] SKIP_WAITING received, activating immediately');
     self.skipWaiting();
   }
   if (event.data === 'GET_VERSION') {
