@@ -2,37 +2,10 @@
 
 /**
  * غلاف بسيط لطلبات API مع إرسال Firebase ID Token.
- * + إضافة Cache لمدة دقيقتين لتقليل استهلاك Firebase.
+ * (بدون Cache لضمان تحديث البيانات فورًا)
  */
 
-const CACHE_DURATION = 2 * 60 * 1000; // دقيقتين
-const cache = new Map();
-
 async function request(method, url, body = null, token = null) {
-  // 1) لو الطلب مش GET (POST/PUT/DELETE)، نمسح الكاش فورًا قبل أي حاجة
-  if (method !== 'GET') {
-    const baseUrl = url.split('?')[0];
-    for (const key of cache.keys()) {
-      if (key.startsWith(baseUrl)) {
-        cache.delete(key);
-        console.log('🗑️ تم مسح الكاش لـ:', key);
-      }
-    }
-  }
-
-  // 2) لو الطلب GET، نشوف لو في نسخة مخزنة
-  if (method === 'GET') {
-    const cached = cache.get(url);
-    if (cached && (Date.now() - cached.time < CACHE_DURATION)) {
-      console.log('⚡ من الكاش:', url);
-      return {
-        ok: true,
-        status: 200,
-        json: async () => cached.data,
-      };
-    }
-  }
-
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -47,13 +20,6 @@ async function request(method, url, body = null, token = null) {
     if (fresh && fresh !== token) {
       return request(method, url, body, fresh);
     }
-  }
-
-  // 3) لو الطلب GET ونجح، نخزن الرد في الكاش
-  if (method === 'GET' && res.ok) {
-    const clonedRes = res.clone();
-    const data = await clonedRes.json();
-    cache.set(url, { data, time: Date.now() });
   }
 
   return res;
