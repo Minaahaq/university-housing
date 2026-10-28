@@ -1,11 +1,22 @@
 'use strict';
 
-/**
- * غلاف بسيط لطلبات API مع إرسال Firebase ID Token.
- * (بدون Cache لضمان تحديث البيانات فورًا)
- */
+const CACHE_DURATION = 60 * 1000; // دقيقة واحدة
+const cache = new Map();
 
 async function request(method, url, body = null, token = null) {
+  // 1. لو الطلب GET، نشوف الكاش
+  if (method === 'GET') {
+    const cached = cache.get(url);
+    if (cached && (Date.now() - cached.time < CACHE_DURATION)) {
+      console.log('⚡ من الكاش:', url);
+      return {
+        ok: true,
+        status: 200,
+        json: async () => cached.data,
+      };
+    }
+  }
+
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -14,12 +25,24 @@ async function request(method, url, body = null, token = null) {
 
   const res = await fetch(url, options);
 
-  // معالجة 401: محاولة تجديد التوكن مرة واحدة
   if (res.status === 401 && token) {
     const fresh = await window.fbClient.getIdToken(true);
     if (fresh && fresh !== token) {
       return request(method, url, body, fresh);
     }
+  }
+
+  // 2. لو GET ونجح، خزنه
+  if (method === 'GET' && res.ok) {
+    const clonedRes = res.clone();
+    const data = await clonedRes.json();
+    cache.set(url, { data, time: Date.now() });
+  }
+
+  // 3. لو POST/PUT/DELETE، امسح الكاش
+  if (method !== 'GET') {
+    cache.clear();
+    console.log('🗑️ تم مسح الكاش بعد عملية:', method);
   }
 
   return res;
