@@ -3,7 +3,7 @@
    v3.0.0 — Network First for JS/HTML/CSS
    ========================================== */
 
-const CACHE_VERSION = 'v6.0.1'; // 👈 غيّر الرقم ده كل مرة تعدل
+const CACHE_VERSION = 'v7.0.1'; // 👈 غيّر الرقم ده كل مرة تعدل
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 
