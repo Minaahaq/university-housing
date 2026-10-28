@@ -11,8 +11,8 @@ async function listStudents({ q, college, status, limit, offset }) {
   if (college) query = query.where('college', '==', college);
   if (status)  query = query.where('status', '==', status);
 
-  // ✅ إجبار السيرفر إنه يجيب أحدث البيانات من Firebase (تجاهل الكاش)
-  const snapshot = await query.get({ source: 'server' });
+  // ✅ شيلنا { source: 'server' } عشان نوفر القراءات (الليمت)
+  const snapshot = await query.get();
   
   let docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 
@@ -30,8 +30,8 @@ async function listStudents({ q, college, status, limit, offset }) {
 }
 
 async function getStudent(id) {
-  // ✅ إجبار السيرفر إنه يجيب أحدث بيانات الطالب (تجاهل الكاش)
-  const doc = await COL.doc(id).get({ source: 'server' });
+  // ✅ شيلنا { source: 'server' }
+  const doc = await COL.doc(id).get();
   if (!doc.exists) throw ApiError.notFound('الطالب غير موجود');
   return { id: doc.id, ...doc.data() };
 }
