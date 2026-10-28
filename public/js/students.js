@@ -326,7 +326,10 @@ async function saveStudent() {
       ? await apiPost('/api/students', payload)
       : await apiPut(`/api/students/${id}`, payload);
 
-    // ✅ إعادة تحميل البيانات من السيرفر فوراً
+    // ✅ تأخير نص ثانية عشان نضمن إن Firebase حفظ البيانات فعلاً
+    await new Promise(r => setTimeout(r, 500));
+
+    // ✅ إعادة تحميل البيانات من السيرفر
     loader.show('جارٍ تحديث البيانات...', 50);
     await loadAll();
     renderAll();
@@ -334,6 +337,10 @@ async function saveStudent() {
 
     closeDrawer();
     toast(isNew ? 'تم إضافة الطالب بنجاح' : 'تم تحديث البيانات', 'success');
+    
+    // ✅ نطبع في الكونسول عشان نتأكد
+    console.log('عدد الطلاب بعد التحديث:', studentsState.students.length);
+
   } catch (err) {
     toast(err.message, 'error');
   } finally {
@@ -356,7 +363,10 @@ async function deleteStudent(id) {
   try {
     await apiDel(`/api/students/${id}`);
     
-    // ✅ إعادة تحميل البيانات من السيرفر فوراً
+    // ✅ تأخير نص ثانية عشان نضمن إن Firebase مسح البيانات فعلاً
+    await new Promise(r => setTimeout(r, 500));
+
+    // ✅ إعادة تحميل البيانات من السيرفر
     loader.show('جارٍ تحديث البيانات...', 50);
     await loadAll();
     renderAll();
