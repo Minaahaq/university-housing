@@ -120,25 +120,21 @@ async function updateStudent(id, input, actor) {
 }
 
 async function archiveStudent(id, actor) {
-  console.log('⏳ [archiveStudent] محاولة أرشفة طالب:', id);
+  console.log('⏳ [archiveStudent] محاولة حذف طالب نهائي:', id);
 
   const doc = await COL.doc(id).get();
   if (!doc.exists) throw ApiError.notFound('الطالب غير موجود');
 
   try {
-    await COL.doc(id).update({
-      archived: true,
-      status: 'منسحب',
-      updatedAt: new Date().toISOString(),
-      updatedBy: actor?.uid || null,
-    });
-    console.log('✅ [archiveStudent] تمت الأرشفة بنجاح:', id);
+    // ✅ حذف نهائي من قاعدة البيانات
+    await COL.doc(id).delete();
+    console.log('✅ [archiveStudent] تم الحذف النهائي بنجاح:', id);
   } catch (err) {
-    console.error('❌ [archiveStudent] فشل الأرشفة:', err);
+    console.error('❌ [archiveStudent] فشل الحذف:', err);
     throw err;
   }
 
-  return getStudent(id);
+  return { id, deleted: true };
 }
 
 module.exports = {
