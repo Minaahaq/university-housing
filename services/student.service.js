@@ -11,7 +11,9 @@ async function listStudents({ q, college, status, limit, offset }) {
   if (college) query = query.where('college', '==', college);
   if (status)  query = query.where('status', '==', status);
 
-  const snapshot = await query.get();
+  // ✅ إجبار السيرفر إنه يجيب أحدث البيانات من Firebase (تجاهل الكاش)
+  const snapshot = await query.get({ source: 'server' });
+  
   let docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 
   if (q) {
@@ -28,13 +30,13 @@ async function listStudents({ q, college, status, limit, offset }) {
 }
 
 async function getStudent(id) {
-  const doc = await COL.doc(id).get();
+  // ✅ إجبار السيرفر إنه يجيب أحدث بيانات الطالب (تجاهل الكاش)
+  const doc = await COL.doc(id).get({ source: 'server' });
   if (!doc.exists) throw ApiError.notFound('الطالب غير موجود');
   return { id: doc.id, ...doc.data() };
 }
 
 async function createStudent(input, actor) {
-  // 1. تسجيل بداية المحاولة
   console.log('⏳ [createStudent] محاولة حفظ طالب جديد:', input.name);
 
   const now = new Date().toISOString();
@@ -68,12 +70,10 @@ async function createStudent(input, actor) {
       createdBy: actor?.uid || null,
     });
 
-    // 2. تسجيل نجاح الحفظ مع الـ ID
     console.log('✅ [createStudent] تم الحفظ في Firebase بنجاح. ID:', docRef.id);
 
     return getStudent(docRef.id);
   } catch (err) {
-    // 3. تسجيل فشل الحفظ
     console.error('❌ [createStudent] فشل الحفظ في Firebase:', err);
     throw err;
   }
