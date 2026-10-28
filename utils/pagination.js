@@ -1,7 +1,7 @@
 'use strict';
 
 const DEFAULT_LIMIT = 20;
-const MAX_LIMIT = 200;
+const MAX_LIMIT = 2000;
 
 function parsePagination(query) {
   let limit = parseInt(query.limit, 10);
